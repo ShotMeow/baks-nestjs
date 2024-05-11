@@ -1,23 +1,17 @@
 {
   "name": "fitgital-nestjs-new",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
-  "author": "",
+  "author": "Kai Goldman",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "dev": "nest start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
