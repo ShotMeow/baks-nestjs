@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// News
+
+model News {
+  id          Int          @id @default(autoincrement())
+  title       String
+  artworkUrl  String       @map("artwork_url")
+  description String
+  body        String
+  tags        TagsOnNews[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@map("news")
+}
+
+model Tag {
+  id        Int          @id @default(autoincrement())
+  name      String
+  news      TagsOnNews[]
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@map("tags")
+}
+
+model TagsOnNews {
+  id        Int      @id @default(autoincrement())
+  news      News     @relation(fields: [newsId], references: [id])
+  newsId    Int      @map("news_id")
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  tagId     Int      @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("tags_news")
+}
+
+// Streams
+
+model Stream {
+  id        Int      @id @default(autoincrement())
+  title     String
+  streamUrl String   @map("stream_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("streams")
+}
+
+// Shop
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  name       String
+  price      Int
+  pictureUrl String   @map("picture_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("products")
+}
+
+// Teams
+
+model Team {
+  id          Int                  @id @default(autoincrement())
+  name        String
+  body        String
+  winsPercent Int                  @map("wins_percent")
+  gamesCount  Int                  @map("games_count")
+  players     Player[]             @relation()
+  tournaments TeamsOnTournaments[]
+  lastMatch   DateTime             @map("last_match")
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  @@map("teams")
+}
+
+model Player {
+  id         Int      @id @default(autoincrement())
+  nickname   String
+  name       String
+  pictureUrl String   @map("picture_url")
+  role       String
+  killDeaths Int      @map("kill_deaths")
+  deaths     Int
+  assists    Int
+  Team       Team     @relation(fields: [teamId], references: [id])
+  teamId     Int      @map("team_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("players")
+}
+
+// Tournaments
+
+model Tournament {
+  id          Int                  @id @default(autoincrement())
+  name        String
+  description String
+  prize       Int
+  mode        String
+  type        String
+  artworkUrl  String               @map("artwork_url")
+  teams       TeamsOnTournaments[]
+  address     String
+  eventDate   DateTime             @map("event_date")
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  @@map("tournaments")
+}
+
+model TeamsOnTournaments {
+  id           Int        @id @default(autoincrement())
+  Tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId Int        @map("tournament_id")
+  Team         Team       @relation(fields: [teamId], references: [id])
+  teamId       Int        @map("team_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@map("teams_tournaments")
+}
