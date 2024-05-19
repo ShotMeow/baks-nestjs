@@ -1,13 +1,13 @@
 {
   "name": "fitgital-nestjs-new",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "",
   "author": "Kai Goldman",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "dev": "nest start",
+    "dev": "nest start --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prisma:migrate": "prisma migrate dev --name init",

@@ -1,59 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `News` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Player` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Product` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Stream` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Tag` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TagsOnNews` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Team` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TeamsOnTournaments` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Tournament` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Player" DROP CONSTRAINT "Player_teamId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TagsOnNews" DROP CONSTRAINT "TagsOnNews_newsId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TagsOnNews" DROP CONSTRAINT "TagsOnNews_tagId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TeamsOnTournaments" DROP CONSTRAINT "TeamsOnTournaments_teamId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TeamsOnTournaments" DROP CONSTRAINT "TeamsOnTournaments_tournamentId_fkey";
-
--- DropTable
-DROP TABLE "News";
-
--- DropTable
-DROP TABLE "Player";
-
--- DropTable
-DROP TABLE "Product";
-
--- DropTable
-DROP TABLE "Stream";
-
--- DropTable
-DROP TABLE "Tag";
-
--- DropTable
-DROP TABLE "TagsOnNews";
-
--- DropTable
-DROP TABLE "Team";
-
--- DropTable
-DROP TABLE "TeamsOnTournaments";
-
--- DropTable
-DROP TABLE "Tournament";
-
 -- CreateTable
 CREATE TABLE "news" (
     "id" SERIAL NOT NULL,
@@ -77,19 +21,20 @@ CREATE TABLE "tags" (
 
 -- CreateTable
 CREATE TABLE "tags_news" (
-    "id" SERIAL NOT NULL,
     "news_id" INTEGER NOT NULL,
     "tag_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "tags_news_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tags_news_pkey" PRIMARY KEY ("news_id","tag_id")
 );
 
 -- CreateTable
 CREATE TABLE "streams" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "stream_url" TEXT NOT NULL,
+    "poster_url" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "streams_pkey" PRIMARY KEY ("id")

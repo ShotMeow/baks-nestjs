@@ -37,23 +37,25 @@ model Tag {
 }
 
 model TagsOnNews {
-  id        Int      @id @default(autoincrement())
   news      News     @relation(fields: [newsId], references: [id])
   newsId    Int      @map("news_id")
   tag       Tag      @relation(fields: [tagId], references: [id])
   tagId     Int      @map("tag_id")
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@id([newsId, tagId])
   @@map("tags_news")
 }
 
 // Streams
 
 model Stream {
-  id        Int      @id @default(autoincrement())
-  title     String
-  streamUrl String   @map("stream_url")
-  createdAt DateTime @default(now()) @map("created_at")
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  streamUrl   String   @map("stream_url")
+  posterUrl   String   @map("poster_url")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("streams")
 }
