@@ -53,7 +53,7 @@ model Stream {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  streamUrl   String   @map("stream_url")
+  channel     String
   posterUrl   String   @map("poster_url")
   createdAt   DateTime @default(now()) @map("created_at")
 

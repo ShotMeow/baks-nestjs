@@ -7,9 +7,21 @@ export class NewsService {
   constructor(private prisma: PrismaService) {}
 
   async post(newsWhereUniqueInput: Prisma.NewsWhereUniqueInput) {
-    return this.prisma.news.findUnique({
+    const post = await this.prisma.news.findUnique({
       where: newsWhereUniqueInput,
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
     });
+
+    return {
+      ...post,
+      tags: post.tags.map(({ tag }) => tag),
+    };
   }
 
   async posts() {
@@ -93,6 +105,12 @@ export class NewsService {
   }
 
   async deletePost(where: Prisma.NewsWhereUniqueInput) {
+    await this.prisma.tagsOnNews.deleteMany({
+      where: {
+        newsId: where.id,
+      },
+    });
+
     return this.prisma.news.delete({
       where,
     });
