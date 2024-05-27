@@ -12,7 +12,11 @@ export class TournamentsService {
       include: {
         teams: {
           select: {
-            team: true,
+            team: {
+              include: {
+                players: true,
+              },
+            },
           },
         },
       },
@@ -20,7 +24,7 @@ export class TournamentsService {
 
     return {
       ...tournament,
-      teams: tournament.teams.map(({ team }) => team),
+      teams: tournament.teams?.map(({ team }) => team),
     };
   }
 
@@ -29,7 +33,11 @@ export class TournamentsService {
       include: {
         teams: {
           select: {
-            team: true,
+            team: {
+              include: {
+                players: true,
+              },
+            },
           },
         },
       },
@@ -83,6 +91,7 @@ export class TournamentsService {
         where,
         data: {
           name: data.name,
+          body: data.body,
           description: data.description,
           prize: data.prize,
           mode: data.mode,

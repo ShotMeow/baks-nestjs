@@ -56,9 +56,10 @@ CREATE TABLE "teams" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "body" TEXT NOT NULL,
-    "wins_percent" INTEGER NOT NULL,
-    "games_count" INTEGER NOT NULL,
-    "last_match" TIMESTAMP(3) NOT NULL,
+    "wins_percent" INTEGER,
+    "games_count" INTEGER,
+    "logoUrl" TEXT,
+    "last_match" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "teams_pkey" PRIMARY KEY ("id")
@@ -73,9 +74,9 @@ CREATE TABLE "users" (
     "name" TEXT,
     "picture_url" TEXT,
     "role" TEXT,
-    "kill_deaths" INTEGER,
-    "deaths" INTEGER,
-    "assists" INTEGER,
+    "kill_deaths" DOUBLE PRECISION,
+    "deaths" DOUBLE PRECISION,
+    "assists" DOUBLE PRECISION,
     "team_id" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -86,6 +87,7 @@ CREATE TABLE "users" (
 CREATE TABLE "tournaments" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "prize" INTEGER NOT NULL,
     "mode" TEXT NOT NULL,
@@ -100,12 +102,11 @@ CREATE TABLE "tournaments" (
 
 -- CreateTable
 CREATE TABLE "teams_tournaments" (
-    "id" SERIAL NOT NULL,
     "tournament_id" INTEGER NOT NULL,
     "team_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "teams_tournaments_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "teams_tournaments_pkey" PRIMARY KEY ("team_id","tournament_id")
 );
 
 -- CreateIndex

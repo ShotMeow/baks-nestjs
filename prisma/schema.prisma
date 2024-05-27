@@ -112,6 +112,7 @@ model User {
 model Tournament {
   id          Int                  @id @default(autoincrement())
   name        String
+  body        String
   description String
   prize       Int
   mode        String
