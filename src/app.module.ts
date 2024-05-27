@@ -6,6 +6,8 @@ import { StreamsModule } from './streams/streams.module';
 import { ProductsModule } from './products/products.module';
 import { TeamsModule } from './teams/teams.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,8 +17,9 @@ import { TournamentsModule } from './tournaments/tournaments.module';
     ProductsModule,
     TeamsModule,
     TournamentsModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [PrismaService],
 })
 export class AppModule {}

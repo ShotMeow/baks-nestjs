@@ -25,14 +25,24 @@ export class TeamsController {
   }
 
   @Post()
-  async createTeam(@Body() team: Prisma.TeamCreateInput) {
+  async createTeam(
+    @Body()
+    team: Prisma.TeamCreateInput & {
+      players: number[];
+      tournaments: number[];
+    },
+  ) {
     return this.teamsService.createTeam(team);
   }
 
   @Patch(':id')
   async updateTeam(
     @Param('id') id: Prisma.TeamWhereUniqueInput,
-    @Body() team: Prisma.TeamUpdateInput,
+    @Body()
+    team: Prisma.TeamUpdateInput & {
+      players: number[];
+      tournaments: number[];
+    },
   ) {
     return this.teamsService.updateTeam({ id: Number(id) }, team);
   }

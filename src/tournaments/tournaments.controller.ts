@@ -25,14 +25,16 @@ export class TournamentsController {
   }
 
   @Post()
-  async createTournament(@Body() tournament: Prisma.TournamentCreateInput) {
+  async createTournament(
+    @Body() tournament: Prisma.TournamentCreateInput & { teams: number[] },
+  ) {
     return this.tournamentsService.createTournament(tournament);
   }
 
   @Patch(':id')
   async updateTournament(
     @Param('id') id: Prisma.TournamentWhereUniqueInput,
-    @Body() tournament: Prisma.TeamUpdateInput,
+    @Body() tournament: Prisma.TeamUpdateInput & { teams: number[] },
   ) {
     return this.tournamentsService.updateTournament(
       { id: Number(id) },

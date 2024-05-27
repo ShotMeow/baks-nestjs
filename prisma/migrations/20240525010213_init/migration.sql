@@ -65,19 +65,21 @@ CREATE TABLE "teams" (
 );
 
 -- CreateTable
-CREATE TABLE "players" (
+CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
-    "nickname" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "picture_url" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
-    "kill_deaths" INTEGER NOT NULL,
-    "deaths" INTEGER NOT NULL,
-    "assists" INTEGER NOT NULL,
-    "team_id" INTEGER NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "nickname" TEXT,
+    "name" TEXT,
+    "picture_url" TEXT,
+    "role" TEXT,
+    "kill_deaths" INTEGER,
+    "deaths" INTEGER,
+    "assists" INTEGER,
+    "team_id" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "players_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -106,6 +108,9 @@ CREATE TABLE "teams_tournaments" (
     CONSTRAINT "teams_tournaments_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
 -- AddForeignKey
 ALTER TABLE "tags_news" ADD CONSTRAINT "tags_news_news_id_fkey" FOREIGN KEY ("news_id") REFERENCES "news"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -113,7 +118,7 @@ ALTER TABLE "tags_news" ADD CONSTRAINT "tags_news_news_id_fkey" FOREIGN KEY ("ne
 ALTER TABLE "tags_news" ADD CONSTRAINT "tags_news_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "tags"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "players" ADD CONSTRAINT "players_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "users" ADD CONSTRAINT "users_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "teams_tournaments" ADD CONSTRAINT "teams_tournaments_tournament_id_fkey" FOREIGN KEY ("tournament_id") REFERENCES "tournaments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

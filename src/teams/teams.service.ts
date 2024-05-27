@@ -7,28 +7,159 @@ export class TeamsService {
   constructor(private prisma: PrismaService) {}
 
   async team(teamWhereUniqueInput: Prisma.TeamWhereUniqueInput) {
-    return this.prisma.team.findUnique({
+    const team = await this.prisma.team.findUnique({
       where: teamWhereUniqueInput,
+      include: {
+        players: true,
+        tournaments: {
+          include: {
+            tournament: true,
+          },
+        },
+      },
     });
+
+    return {
+      ...team,
+      tournaments: team.tournaments.map(({ tournament }) => tournament),
+    };
   }
 
   async teams() {
-    return this.prisma.team.findMany();
+    const teams = await this.prisma.team.findMany({
+      include: {
+        players: true,
+        tournaments: {
+          include: {
+            tournament: true,
+          },
+        },
+      },
+    });
+
+    return teams.map((team) => ({
+      ...team,
+      tournaments: team.tournaments.map(({ tournament }) => tournament),
+    }));
   }
 
-  async createTeam(data: Prisma.TeamCreateInput) {
-    return this.prisma.team.create({
-      data,
+  async createTeam(
+    data: Prisma.TeamCreateInput & {
+      players: number[];
+      tournaments: number[];
+    },
+  ) {
+    const team = await this.prisma.team.create({
+      data: {
+        name: data.name,
+        body: data.body,
+        winsPercent: data.winsPercent,
+        gamesCount: data.gamesCount,
+        lastMatch: data.lastMatch,
+        logoUrl: data.logoUrl,
+        tournaments: {
+          create: data.tournaments?.map((tournamentId) => ({
+            tournament: {
+              connect: {
+                id: tournamentId,
+              },
+            },
+          })),
+        },
+      },
     });
+
+    data.players?.map(async (playerId) => {
+      await this.prisma.user.update({
+        where: {
+          id: playerId,
+        },
+        data: {
+          teamId: team.id,
+        },
+      });
+    });
+
+    return team;
   }
 
   async updateTeam(
     where: Prisma.TeamWhereUniqueInput,
-    data: Prisma.TeamUpdateInput,
+    data: Prisma.TeamUpdateInput & {
+      players: number[];
+      tournaments: number[];
+    },
   ) {
-    return this.prisma.team.update({
-      where,
-      data,
+    const users = await this.prisma.user.findMany();
+
+    users.map(async (user) => {
+      if (!data.players.includes(user.id)) {
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            teamId: null,
+          },
+        });
+      } else {
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            teamId: where.id,
+          },
+        });
+      }
+    });
+
+    const currentTournaments = await this.prisma.teamsOnTournaments.findMany({
+      where: { teamId: where.id },
+      select: {
+        tournamentId: true,
+      },
+    });
+
+    const currentTournamentIds = currentTournaments.map(
+      (tournament) => tournament.tournamentId,
+    );
+
+    const tournamentsChanged =
+      JSON.stringify(currentTournamentIds.sort()) !==
+      JSON.stringify(data.tournaments.sort());
+
+    return this.prisma.$transaction(async (prisma) => {
+      await prisma.team.update({
+        where,
+        data: {
+          name: data.name,
+          body: data.body,
+          winsPercent: data.winsPercent,
+          gamesCount: data.gamesCount,
+          lastMatch: data.lastMatch,
+          logoUrl: data.logoUrl,
+        },
+      });
+
+      if (tournamentsChanged) {
+        await prisma.teamsOnTournaments.deleteMany({
+          where: {
+            teamId: where.id,
+          },
+        });
+
+        const newTournamentsRelations = data.tournaments?.map(
+          (tournamentId) => ({
+            tournamentId,
+            teamId: where.id,
+          }),
+        );
+
+        await prisma.teamsOnTournaments.createMany({
+          data: newTournamentsRelations,
+        });
+      }
     });
   }
 

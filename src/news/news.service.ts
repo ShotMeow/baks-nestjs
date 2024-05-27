@@ -86,7 +86,6 @@ export class NewsService {
       });
 
       if (tagsChanged) {
-        // Удаление старых связей с тегами
         await prisma.tagsOnNews.deleteMany({
           where: {
             newsId: where.id,

@@ -78,30 +78,33 @@ model Team {
   id          Int                  @id @default(autoincrement())
   name        String
   body        String
-  winsPercent Int                  @map("wins_percent")
-  gamesCount  Int                  @map("games_count")
-  players     Player[]             @relation()
+  winsPercent Int?                 @map("wins_percent")
+  gamesCount  Int?                 @map("games_count")
+  logoUrl     String?
+  players     User[]               @relation()
   tournaments TeamsOnTournaments[]
-  lastMatch   DateTime             @map("last_match")
+  lastMatch   DateTime?            @map("last_match")
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@map("teams")
 }
 
-model Player {
+model User {
   id         Int      @id @default(autoincrement())
-  nickname   String
-  name       String
-  pictureUrl String   @map("picture_url")
-  role       String
-  killDeaths Int      @map("kill_deaths")
-  deaths     Int
-  assists    Int
-  Team       Team     @relation(fields: [teamId], references: [id])
-  teamId     Int      @map("team_id")
+  email      String   @unique
+  password   String
+  nickname   String?
+  name       String?
+  pictureUrl String?  @map("picture_url")
+  role       String?
+  killDeaths Float?   @map("kill_deaths")
+  deaths     Float?
+  assists    Float?
+  Team       Team?    @relation(fields: [teamId], references: [id])
+  teamId     Int?     @map("team_id")
   createdAt  DateTime @default(now()) @map("created_at")
 
-  @@map("players")
+  @@map("users")
 }
 
 // Tournaments
@@ -123,12 +126,12 @@ model Tournament {
 }
 
 model TeamsOnTournaments {
-  id           Int        @id @default(autoincrement())
-  Tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
   tournamentId Int        @map("tournament_id")
-  Team         Team       @relation(fields: [teamId], references: [id])
+  team         Team       @relation(fields: [teamId], references: [id])
   teamId       Int        @map("team_id")
   createdAt    DateTime   @default(now()) @map("created_at")
 
+  @@id([teamId, tournamentId])
   @@map("teams_tournaments")
 }
