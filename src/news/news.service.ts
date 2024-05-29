@@ -41,7 +41,11 @@ export class NewsService {
     }));
   }
 
-  async createPost(data: Prisma.NewsCreateInput & { tags: number[] }) {
+  async createPost(
+    data: Prisma.NewsCreateInput & {
+      tags: number[];
+    },
+  ) {
     return this.prisma.news.create({
       data: {
         ...data,

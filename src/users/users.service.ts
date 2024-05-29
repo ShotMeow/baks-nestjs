@@ -8,9 +8,28 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async user(where: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where,
+      include: {
+        team: {
+          include: {
+            tournaments: {
+              include: {
+                tournament: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    return {
+      ...user,
+      team: {
+        ...user.team,
+        tournaments: user.team.tournaments.map(({ tournament }) => tournament),
+      },
+    };
   }
 
   async users(where: Prisma.UserWhereInput) {

@@ -26,7 +26,9 @@ export class NewsController {
   @Post()
   async createPost(
     @Body()
-    data: Prisma.NewsCreateInput & { tags: number[] },
+    data: Prisma.NewsCreateInput & {
+      tags: number[];
+    },
   ) {
     return this.newsService.createPost(data);
   }

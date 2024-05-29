@@ -100,7 +100,7 @@ model User {
   killDeaths Float?   @map("kill_deaths")
   deaths     Float?
   assists    Float?
-  Team       Team?    @relation(fields: [teamId], references: [id])
+  team       Team?    @relation(fields: [teamId], references: [id])
   teamId     Int?     @map("team_id")
   createdAt  DateTime @default(now()) @map("created_at")
 
