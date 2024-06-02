@@ -41,11 +41,10 @@ export class StreamsService {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
+      const stream = await this.prisma.stream.findUnique({ where });
+      await this.imagesService.deleteImage(stream.posterUrl);
       delete data.imageFile;
     }
-
-    const stream = await this.prisma.stream.findUnique({ where });
-    await this.imagesService.deleteImage(stream.posterUrl);
 
     return this.prisma.stream.update({
       where,

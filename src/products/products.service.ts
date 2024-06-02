@@ -45,14 +45,12 @@ export class ProductsService {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
+      const product = await this.prisma.product.findFirst({
+        where,
+      });
+      await this.imagesService.deleteImage(product.pictureUrl);
       delete data.imageFile;
     }
-
-    const product = await this.prisma.product.findFirst({
-      where,
-    });
-
-    await this.imagesService.deleteImage(product.pictureUrl);
 
     return this.prisma.product.update({
       where,

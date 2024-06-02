@@ -7,6 +7,6 @@ export class UpdateTeamDto {
   gamesCount?: string;
   lastMatch?: Date;
   imageFile?: MemoryStoredFile;
-  players?: number[];
-  tournaments?: number[];
+  players?: string[];
+  tournaments?: string[];
 }

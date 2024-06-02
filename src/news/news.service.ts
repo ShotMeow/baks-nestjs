@@ -76,6 +76,10 @@ export class NewsService {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
+      const post = await this.prisma.news.findFirst({
+        where,
+      });
+      await this.imagesService.deleteImage(post.artworkUrl);
       delete data.imageFile;
     }
 
@@ -93,12 +97,6 @@ export class NewsService {
         ? JSON.stringify(currentTagIds.sort()) !==
           JSON.stringify(data.tags.map((tag) => +tag).sort())
         : false;
-
-    const post = await this.prisma.news.findFirst({
-      where,
-    });
-
-    await this.imagesService.deleteImage(post.artworkUrl);
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.news.update({

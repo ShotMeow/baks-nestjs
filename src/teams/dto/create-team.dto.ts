@@ -7,6 +7,6 @@ export class CreateTeamDto {
   gamesCount?: number;
   lastMatch?: Date;
   imageFile?: MemoryStoredFile;
-  players?: number[];
-  tournaments?: number[];
+  players?: string[];
+  tournaments?: string[];
 }

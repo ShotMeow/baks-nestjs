@@ -10,5 +10,5 @@ export class CreateTournamentDto {
   address: string;
   eventDate: Date;
   imageFile: MemoryStoredFile;
-  teams: number[];
+  teams: string[];
 }

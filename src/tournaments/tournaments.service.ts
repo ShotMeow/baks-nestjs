@@ -56,7 +56,6 @@ export class TournamentsService {
   }
 
   async createTournament(data: CreateTournamentDto) {
-    console.log(data);
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
@@ -72,7 +71,7 @@ export class TournamentsService {
           create: data.teams?.map((teamId) => ({
             team: {
               connect: {
-                id: teamId,
+                id: +teamId,
               },
             },
           })),
@@ -88,6 +87,10 @@ export class TournamentsService {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
+      const tournament = await this.prisma.tournament.findFirst({
+        where,
+      });
+      await this.imagesService.deleteImage(tournament.artworkUrl);
       delete data.imageFile;
     }
 
@@ -105,11 +108,6 @@ export class TournamentsService {
         ? JSON.stringify(currentTeamIds.sort()) !==
           JSON.stringify(data.teams.sort())
         : false;
-
-    const tournament = await this.prisma.tournament.findFirst({
-      where,
-    });
-    await this.imagesService.deleteImage(tournament.artworkUrl);
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.tournament.update({
@@ -135,7 +133,7 @@ export class TournamentsService {
         });
 
         const newTeamRelations = data.teams?.map((teamId) => ({
-          teamId,
+          teamId: +teamId,
           tournamentId: where.id,
         }));
         await prisma.teamsOnTournaments.createMany({

@@ -68,7 +68,7 @@ export class TeamsService {
           create: data.tournaments?.map((tournamentId) => ({
             tournament: {
               connect: {
-                id: tournamentId,
+                id: +tournamentId,
               },
             },
           })),
@@ -79,7 +79,7 @@ export class TeamsService {
     data.players?.map(async (playerId) => {
       await this.prisma.user.update({
         where: {
-          id: playerId,
+          id: +playerId,
         },
         data: {
           teamId: team.id,
@@ -94,12 +94,16 @@ export class TeamsService {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
+      const team = await this.prisma.team.findFirst({
+        where,
+      });
+      await this.imagesService.deleteImage(team.logoUrl);
       delete data.imageFile;
     }
-
+    console.log(data);
     const users = await this.prisma.user.findMany();
     users?.map(async (user) => {
-      if (!data.players.includes(user.id)) {
+      if (!data.players?.includes(String(user.id))) {
         await this.prisma.user.update({
           where: {
             id: user.id,
@@ -139,11 +143,6 @@ export class TeamsService {
           )
         : false;
 
-    const team = await this.prisma.team.findFirst({
-      where,
-    });
-    await this.imagesService.deleteImage(team.logoUrl);
-
     return this.prisma.$transaction(async (prisma) => {
       await prisma.team.update({
         where,
@@ -166,7 +165,7 @@ export class TeamsService {
 
         const newTournamentsRelations = data.tournaments?.map(
           (tournamentId) => ({
-            tournamentId,
+            tournamentId: +tournamentId,
             teamId: where.id,
           }),
         );
