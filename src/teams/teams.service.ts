@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { CreateTeamDto } from './dto/create-team.dto';
+import { ImagesService } from '../images/images.service';
+import { UpdateTeamDto } from './dto/update-team.dto';
 
 @Injectable()
 export class TeamsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private imagesService: ImagesService,
+  ) {}
 
   async team(teamWhereUniqueInput: Prisma.TeamWhereUniqueInput) {
     const team = await this.prisma.team.findUnique({
@@ -43,20 +49,21 @@ export class TeamsService {
     }));
   }
 
-  async createTeam(
-    data: Prisma.TeamCreateInput & {
-      players: number[];
-      tournaments: number[];
-    },
-  ) {
+  async createTeam(data: CreateTeamDto) {
+    let imagePath: string;
+    if (data.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
+
     const team = await this.prisma.team.create({
       data: {
         name: data.name,
         body: data.body,
-        winsPercent: data.winsPercent,
-        gamesCount: data.gamesCount,
+        winsPercent: +data.winsPercent,
+        gamesCount: +data.gamesCount,
         lastMatch: data.lastMatch,
-        logoUrl: data.logoUrl,
+        logoUrl: imagePath,
         tournaments: {
           create: data.tournaments?.map((tournamentId) => ({
             tournament: {
@@ -83,16 +90,15 @@ export class TeamsService {
     return team;
   }
 
-  async updateTeam(
-    where: Prisma.TeamWhereUniqueInput,
-    data: Prisma.TeamUpdateInput & {
-      players: number[];
-      tournaments: number[];
-    },
-  ) {
-    const users = await this.prisma.user.findMany();
+  async updateTeam(where: Prisma.TeamWhereUniqueInput, data: UpdateTeamDto) {
+    let imagePath: string;
+    if (data.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
 
-    users.map(async (user) => {
+    const users = await this.prisma.user.findMany();
+    users?.map(async (user) => {
       if (!data.players.includes(user.id)) {
         await this.prisma.user.update({
           where: {
@@ -121,13 +127,22 @@ export class TeamsService {
       },
     });
 
-    const currentTournamentIds = currentTournaments.map(
+    const currentTournamentIds = currentTournaments?.map(
       (tournament) => tournament.tournamentId,
     );
 
     const tournamentsChanged =
-      JSON.stringify(currentTournamentIds.sort()) !==
-      JSON.stringify(data.tournaments.sort());
+      currentTournamentIds && data.tournaments
+        ? JSON.stringify(currentTournamentIds.sort()) !==
+          JSON.stringify(
+            data.tournaments?.map((tournament) => +tournament).sort(),
+          )
+        : false;
+
+    const team = await this.prisma.team.findFirst({
+      where,
+    });
+    await this.imagesService.deleteImage(team.logoUrl);
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.team.update({
@@ -135,10 +150,10 @@ export class TeamsService {
         data: {
           name: data.name,
           body: data.body,
-          winsPercent: data.winsPercent,
-          gamesCount: data.gamesCount,
+          winsPercent: +data.winsPercent,
+          gamesCount: +data.gamesCount,
           lastMatch: data.lastMatch,
-          logoUrl: data.logoUrl,
+          logoUrl: imagePath,
         },
       });
 
@@ -164,8 +179,12 @@ export class TeamsService {
   }
 
   async deleteTeam(where: Prisma.TeamWhereUniqueInput) {
-    return this.prisma.team.delete({
+    const team = await this.prisma.team.delete({
       where,
     });
+
+    await this.imagesService.deleteImage(team.logoUrl);
+
+    return team;
   }
 }

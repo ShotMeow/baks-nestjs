@@ -1,20 +1,21 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Prisma } from '@prisma/client';
 import { User } from './decorators/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { SignInDto } from './dto/signIn.dto';
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/sign-in')
-  async signIn(@Body() body: { email: string; password: string }) {
+  async signIn(@Body() body: SignInDto) {
     return this.authService.signIn(body);
   }
 
   @Post('/sign-up')
-  async signUp(@Body() body: Prisma.UserCreateInput) {
+  async signUp(@Body() body: CreateUserDto) {
     return this.authService.signUp(body);
   }
 

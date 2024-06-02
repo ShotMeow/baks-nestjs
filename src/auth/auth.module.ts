@@ -7,13 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
 import { UsersModule } from '../users/users.module';
-import { PrismaModule } from '../database/prisma.module';
+import { ImagesModule } from '../images/images.module';
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
-    PrismaModule,
+    ImagesModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
     }),

@@ -2,10 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ImagesService } from '../images/images.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private imagesService: ImagesService,
+  ) {}
 
   async user(where: Prisma.UserWhereUniqueInput) {
     const user = await this.prisma.user.findUnique({
@@ -27,7 +33,9 @@ export class UsersService {
       ...user,
       team: {
         ...user.team,
-        tournaments: user.team.tournaments.map(({ tournament }) => tournament),
+        tournaments: user.team?.tournaments?.map(
+          ({ tournament }) => tournament,
+        ),
       },
     };
   }
@@ -38,24 +46,31 @@ export class UsersService {
     });
   }
 
-  async createUser(data: Prisma.UserCreateInput) {
+  async createUser(data: CreateUserDto) {
+    const imagePath = await this.imagesService.uploadImage(data.imageFile);
+    delete data.imageFile;
     data.password = await bcrypt.hash(data.password, 10);
 
     return this.prisma.user.create({
-      data,
+      data: {
+        ...data,
+        pictureUrl: imagePath,
+      },
     });
   }
 
-  async updateUser(
-    where: Prisma.UserWhereUniqueInput,
-    data: Prisma.UserUpdateInput,
-  ) {
+  async updateUser(where: Prisma.UserWhereUniqueInput, data: UpdateUserDto) {
+    const imagePath = await this.imagesService.uploadImage(data.imageFile);
+    delete data.imageFile;
     if (data.password) {
       data.password = await bcrypt.hash(data.password as string, 10);
     }
     return this.prisma.user.update({
       where,
-      data,
+      data: {
+        ...data,
+        pictureUrl: imagePath,
+      },
     });
   }
 

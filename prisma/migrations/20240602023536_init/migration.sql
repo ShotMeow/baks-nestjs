@@ -2,9 +2,9 @@
 CREATE TABLE "news" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "artwork_url" TEXT NOT NULL,
+    "artwork_url" TEXT,
     "description" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
+    "body" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "news_pkey" PRIMARY KEY ("id")
@@ -32,9 +32,9 @@ CREATE TABLE "tags_news" (
 CREATE TABLE "streams" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "channel" TEXT NOT NULL,
-    "poster_url" TEXT NOT NULL,
+    "poster_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "streams_pkey" PRIMARY KEY ("id")
@@ -44,8 +44,8 @@ CREATE TABLE "streams" (
 CREATE TABLE "products" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "price" INTEGER NOT NULL,
-    "picture_url" TEXT NOT NULL,
+    "price" INTEGER,
+    "picture_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
@@ -55,7 +55,7 @@ CREATE TABLE "products" (
 CREATE TABLE "teams" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
+    "body" TEXT,
     "wins_percent" INTEGER,
     "games_count" INTEGER,
     "logoUrl" TEXT,
@@ -70,10 +70,10 @@ CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "nickname" TEXT,
-    "name" TEXT,
+    "nickname" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "picture_url" TEXT,
-    "role" TEXT,
+    "role" TEXT NOT NULL,
     "kill_deaths" DOUBLE PRECISION,
     "deaths" DOUBLE PRECISION,
     "assists" DOUBLE PRECISION,
@@ -87,14 +87,14 @@ CREATE TABLE "users" (
 CREATE TABLE "tournaments" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
+    "body" TEXT,
     "description" TEXT NOT NULL,
-    "prize" INTEGER NOT NULL,
-    "mode" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "artwork_url" TEXT NOT NULL,
-    "address" TEXT NOT NULL,
-    "event_date" TIMESTAMP(3) NOT NULL,
+    "prize" INTEGER,
+    "mode" TEXT,
+    "type" TEXT,
+    "artwork_url" TEXT,
+    "address" TEXT,
+    "event_date" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "tournaments_pkey" PRIMARY KEY ("id")

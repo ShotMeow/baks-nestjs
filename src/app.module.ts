@@ -7,6 +7,8 @@ import { TeamsModule } from './teams/teams.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ImagesModule } from './images/images.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AuthModule } from './auth/auth.module';
     TournamentsModule,
     UsersModule,
     AuthModule,
+    ImagesModule,
+    NestjsFormDataModule,
   ],
   controllers: [],
 })

@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { TournamentsService } from './tournaments.service';
+import { CreateTournamentDto } from './dto/create-tournament.dto';
+import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('tournaments')
 export class TournamentsController {
@@ -25,16 +28,16 @@ export class TournamentsController {
   }
 
   @Post()
-  async createTournament(
-    @Body() tournament: Prisma.TournamentCreateInput & { teams: number[] },
-  ) {
+  @FormDataRequest()
+  async createTournament(@Body() tournament: CreateTournamentDto) {
     return this.tournamentsService.createTournament(tournament);
   }
 
   @Patch(':id')
+  @FormDataRequest()
   async updateTournament(
     @Param('id') id: Prisma.TournamentWhereUniqueInput,
-    @Body() tournament: Prisma.TeamUpdateInput & { teams: number[] },
+    @Body() tournament: UpdateTournamentDto,
   ) {
     return this.tournamentsService.updateTournament(
       { id: Number(id) },

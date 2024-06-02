@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
 import { Prisma } from '@prisma/client';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('tags')
 export class TagsController {
@@ -25,15 +26,18 @@ export class TagsController {
   }
 
   @Post()
+  @FormDataRequest()
   async createTag(@Body() tag: Prisma.TagCreateInput) {
     return this.tagsService.createTag(tag);
   }
 
   @Patch(':id')
+  @FormDataRequest()
   async updateTag(
     @Param('id') id: Prisma.TagWhereUniqueInput,
     @Body() tag: Prisma.TagUpdateInput,
   ) {
+    console.log(tag);
     return this.tagsService.updateTag({ id: Number(id) }, tag);
   }
 

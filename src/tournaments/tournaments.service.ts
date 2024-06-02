@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { ImagesService } from '../images/images.service';
+import { CreateTournamentDto } from './dto/create-tournament.dto';
+import { UpdateTournamentDto } from './dto/update-tournament.dto';
 
 @Injectable()
 export class TournamentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private imagesService: ImagesService,
+  ) {}
 
   async tournament(tagWhereUniqueInput: Prisma.TournamentWhereUniqueInput) {
     const tournament = await this.prisma.tournament.findUnique({
@@ -49,12 +55,18 @@ export class TournamentsService {
     }));
   }
 
-  async createTournament(
-    data: Prisma.TournamentCreateInput & { teams: number[] },
-  ) {
+  async createTournament(data: CreateTournamentDto) {
+    console.log(data);
+    let imagePath: string;
+    if (data.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
+
     return this.prisma.tournament.create({
       data: {
         ...data,
+        artworkUrl: imagePath,
         prize: +data.prize,
         teams: {
           create: data.teams?.map((teamId) => ({
@@ -71,8 +83,14 @@ export class TournamentsService {
 
   async updateTournament(
     where: Prisma.TournamentWhereUniqueInput,
-    data: Prisma.TournamentUpdateInput & { teams: number[] },
+    data: UpdateTournamentDto,
   ) {
+    let imagePath: string;
+    if (data.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
+
     const currentTeams = await this.prisma.teamsOnTournaments.findMany({
       where: { tournamentId: where.id },
       select: {
@@ -80,11 +98,18 @@ export class TournamentsService {
       },
     });
 
-    const currentTeamIds = currentTeams.map((team) => team.teamId);
+    const currentTeamIds = currentTeams?.map((team) => team.teamId);
 
     const teamsChanged =
-      JSON.stringify(currentTeamIds.sort()) !==
-      JSON.stringify(data.teams.sort());
+      currentTeamIds && data.teams
+        ? JSON.stringify(currentTeamIds.sort()) !==
+          JSON.stringify(data.teams.sort())
+        : false;
+
+    const tournament = await this.prisma.tournament.findFirst({
+      where,
+    });
+    await this.imagesService.deleteImage(tournament.artworkUrl);
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.tournament.update({
@@ -96,7 +121,7 @@ export class TournamentsService {
           prize: data.prize,
           mode: data.mode,
           type: data.type,
-          artworkUrl: data.artworkUrl,
+          artworkUrl: imagePath,
           address: data.address,
           eventDate: data.eventDate,
         },
@@ -109,7 +134,7 @@ export class TournamentsService {
           },
         });
 
-        const newTeamRelations = data.teams.map((teamId) => ({
+        const newTeamRelations = data.teams?.map((teamId) => ({
           teamId,
           tournamentId: where.id,
         }));
@@ -121,8 +146,12 @@ export class TournamentsService {
   }
 
   async deleteTournament(where: Prisma.TournamentWhereUniqueInput) {
-    return this.prisma.tournament.delete({
+    const tournament = await this.prisma.tournament.delete({
       where,
     });
+
+    await this.imagesService.deleteImage(tournament.artworkUrl);
+
+    return tournament;
   }
 }

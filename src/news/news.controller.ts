@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { Prisma } from '@prisma/client';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('news')
 export class NewsController {
@@ -24,19 +27,19 @@ export class NewsController {
   }
 
   @Post()
+  @FormDataRequest()
   async createPost(
     @Body()
-    data: Prisma.NewsCreateInput & {
-      tags: number[];
-    },
+    data: CreatePostDto,
   ) {
     return this.newsService.createPost(data);
   }
 
   @Patch(':id')
+  @FormDataRequest()
   async updatePost(
     @Param('id') id: Prisma.NewsWhereUniqueInput,
-    @Body() data: Prisma.NewsUpdateInput & { tags: number[] },
+    @Body() data: UpdatePostDto,
   ) {
     return this.newsService.updatePost({ id: Number(id) }, data);
   }

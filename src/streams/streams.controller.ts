@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import { StreamsService } from './streams.service';
 import { Prisma } from '@prisma/client';
+import { CreateStreamDto } from './dto/create-stream.dto';
+import { UpdateStreamDto } from './dto/update-stream.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('streams')
 export class StreamsController {
@@ -25,14 +28,16 @@ export class StreamsController {
   }
 
   @Post()
-  async createStream(@Body() data: Prisma.StreamCreateInput) {
+  @FormDataRequest()
+  async createStream(@Body() data: CreateStreamDto) {
     return this.streamsService.createStream(data);
   }
 
   @Patch(':id')
+  @FormDataRequest()
   async updateStream(
     @Param('id') id: Prisma.StreamWhereUniqueInput,
-    @Body() data: Prisma.StreamUpdateInput,
+    @Body() data: UpdateStreamDto,
   ) {
     return this.streamsService.updateStream({ id: Number(id) }, data);
   }

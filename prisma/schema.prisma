@@ -18,9 +18,9 @@ datasource db {
 model News {
   id          Int          @id @default(autoincrement())
   title       String
-  artworkUrl  String       @map("artwork_url")
+  artworkUrl  String?      @map("artwork_url")
   description String
-  body        String
+  body        String?
   tags        TagsOnNews[]
   createdAt   DateTime     @default(now()) @map("created_at")
 
@@ -52,9 +52,9 @@ model TagsOnNews {
 model Stream {
   id          Int      @id @default(autoincrement())
   title       String
-  description String
+  description String?
   channel     String
-  posterUrl   String   @map("poster_url")
+  posterUrl   String?  @map("poster_url")
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("streams")
@@ -65,8 +65,8 @@ model Stream {
 model Product {
   id         Int      @id @default(autoincrement())
   name       String
-  price      Int
-  pictureUrl String   @map("picture_url")
+  price      Int?
+  pictureUrl String?  @map("picture_url")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("products")
@@ -77,7 +77,7 @@ model Product {
 model Team {
   id          Int                  @id @default(autoincrement())
   name        String
-  body        String
+  body        String?
   winsPercent Int?                 @map("wins_percent")
   gamesCount  Int?                 @map("games_count")
   logoUrl     String?
@@ -93,10 +93,10 @@ model User {
   id         Int      @id @default(autoincrement())
   email      String   @unique
   password   String
-  nickname   String?
-  name       String?
+  nickname   String
+  name       String
   pictureUrl String?  @map("picture_url")
-  role       String?
+  role       String
   killDeaths Float?   @map("kill_deaths")
   deaths     Float?
   assists    Float?
@@ -112,15 +112,15 @@ model User {
 model Tournament {
   id          Int                  @id @default(autoincrement())
   name        String
-  body        String
+  body        String?
   description String
-  prize       Int
-  mode        String
-  type        String
-  artworkUrl  String               @map("artwork_url")
+  prize       Int?
+  mode        String?
+  type        String?
+  artworkUrl  String?              @map("artwork_url")
   teams       TeamsOnTournaments[]
-  address     String
-  eventDate   DateTime             @map("event_date")
+  address     String?
+  eventDate   DateTime?            @map("event_date")
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@map("tournaments")
