@@ -8,21 +8,26 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/signIn.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private prismaService: PrismaService,
     private usersService: UsersService,
   ) {}
 
   async signIn(data: SignInDto) {
-    const user = await this.usersService.user({ email: data.email });
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
 
     if (!user) {
       throw new NotFoundException('Неверный E-mail или пароль');
     }
-
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
     if (!isPasswordValid) {

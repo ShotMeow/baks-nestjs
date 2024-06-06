@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
 import { UsersModule } from '../users/users.module';
 import { ImagesModule } from '../images/images.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ImagesModule } from '../images/images.module';
     JwtModule.register({
       secret: process.env.JWT_SECRET,
     }),
+    NestjsFormDataModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, JwtStrategy, UsersService],

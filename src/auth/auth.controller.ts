@@ -4,17 +4,20 @@ import { User } from './decorators/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SignInDto } from './dto/signIn.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/sign-in')
+  @FormDataRequest()
   async signIn(@Body() body: SignInDto) {
     return this.authService.signIn(body);
   }
 
   @Post('/sign-up')
+  @FormDataRequest()
   async signUp(@Body() body: CreateUserDto) {
     return this.authService.signUp(body);
   }
