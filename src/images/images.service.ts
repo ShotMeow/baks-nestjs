@@ -10,6 +10,11 @@ export class ImagesService {
       const imageName = `${uuidv4()}-${file.originalName}`;
 
       const imagePath = `storage/images/${imageName}`;
+
+      if (!fs.existsSync('storage/images')) {
+        fs.mkdirSync('storage/images', { recursive: true });
+      }
+
       fs.writeFileSync(imagePath, file.buffer);
 
       return imageName;

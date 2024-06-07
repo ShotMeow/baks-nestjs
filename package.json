@@ -1,9 +1,9 @@
 {
-  "name": "fitgital-nestjs-new",
-  "version": "0.3.0",
-  "description": "",
+  "name": "phygital-nestjs",
+  "version": "0.3.1",
+  "description": "Backend API release for Phygital Basketball",
   "author": "Kai Goldman",
-  "private": true,
+  "private": false,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
