@@ -48,7 +48,6 @@ export class NewsService {
   }
 
   async createPost(data: CreatePostDto) {
-    console.log(data);
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
@@ -95,7 +94,7 @@ export class NewsService {
     const tagsChanged =
       currentTagIds && data.tags
         ? JSON.stringify(currentTagIds.sort()) !==
-          JSON.stringify(data.tags.map((tag) => +tag).sort())
+          (data.tags ? JSON.stringify(data.tags.map((tag) => +tag).sort()) : '')
         : false;
 
     return this.prisma.$transaction(async (prisma) => {
@@ -116,13 +115,15 @@ export class NewsService {
           },
         });
 
-        const newTagRelations = data.tags?.map((tagId) => ({
-          tagId: +tagId,
-          newsId: where.id,
-        }));
-        await prisma.tagsOnNews.createMany({
-          data: newTagRelations,
-        });
+        if (data.tags) {
+          const newTagRelations = data.tags.map((tagId) => ({
+            tagId: +tagId,
+            newsId: where.id,
+          }));
+          await prisma.tagsOnNews.createMany({
+            data: newTagRelations,
+          });
+        }
       }
     });
   }

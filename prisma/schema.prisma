@@ -28,10 +28,11 @@ model News {
 }
 
 model Tag {
-  id        Int          @id @default(autoincrement())
-  name      String
-  news      TagsOnNews[]
-  createdAt DateTime     @default(now()) @map("created_at")
+  id                Int                 @id @default(autoincrement())
+  name              String
+  news              TagsOnNews[]
+  createdAt         DateTime            @default(now()) @map("created_at")
+  TagsOnTournaments TagsOnTournaments[]
 
   @@map("tags")
 }
@@ -121,9 +122,21 @@ model Tournament {
   teams       TeamsOnTournaments[]
   address     String?
   eventDate   DateTime?            @map("event_date")
+  tags        TagsOnTournaments[]
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@map("tournaments")
+}
+
+model TagsOnTournaments {
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId Int        @map("tournament_id")
+  tag          Tag        @relation(fields: [tagId], references: [id])
+  tagId        Int        @map("tag_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@id([tournamentId, tagId])
+  @@map("tags_tournaments")
 }
 
 model TeamsOnTournaments {

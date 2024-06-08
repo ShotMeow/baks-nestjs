@@ -25,12 +25,18 @@ export class TournamentsService {
             },
           },
         },
+        tags: {
+          select: {
+            tag: true,
+          },
+        },
       },
     });
 
     return {
       ...tournament,
-      teams: tournament.teams?.map(({ team }) => team),
+      teams: tournament.teams.map(({ team }) => team),
+      tags: tournament.tags.map(({ tag }) => tag),
     };
   }
 
@@ -46,12 +52,18 @@ export class TournamentsService {
             },
           },
         },
+        tags: {
+          select: {
+            tag: true,
+          },
+        },
       },
     });
 
     return tournaments.map((tournament) => ({
       ...tournament,
       teams: tournament.teams.map(({ team }) => team),
+      tags: tournament.tags.map(({ tag }) => tag),
     }));
   }
 
@@ -76,6 +88,15 @@ export class TournamentsService {
             },
           })),
         },
+        tags: {
+          create: data.tags?.map((tagId) => ({
+            tag: {
+              connect: {
+                id: +tagId,
+              },
+            },
+          })),
+        },
       },
     });
   }
@@ -94,6 +115,20 @@ export class TournamentsService {
       delete data.imageFile;
     }
 
+    const currentTags = await this.prisma.tagsOnNews.findMany({
+      where: { newsId: where.id },
+      select: {
+        tagId: true,
+      },
+    });
+
+    const currentTagIds = currentTags?.map((tag) => tag.tagId);
+
+    const tagsChanged = currentTagIds
+      ? JSON.stringify(currentTagIds.sort()) !==
+        (data.tags ? JSON.stringify(data.tags.map((tag) => +tag).sort()) : '')
+      : false;
+
     const currentTeams = await this.prisma.teamsOnTournaments.findMany({
       where: { tournamentId: where.id },
       select: {
@@ -103,11 +138,12 @@ export class TournamentsService {
 
     const currentTeamIds = currentTeams?.map((team) => team.teamId);
 
-    const teamsChanged =
-      currentTeamIds && data.teams
-        ? JSON.stringify(currentTeamIds.sort()) !==
-          JSON.stringify(data.teams.sort())
-        : false;
+    const teamsChanged = currentTeamIds
+      ? JSON.stringify(currentTeamIds.sort()) !==
+        (data.teams
+          ? JSON.stringify(data.teams.map((team) => +team).sort())
+          : '')
+      : false;
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.tournament.update({
@@ -116,7 +152,7 @@ export class TournamentsService {
           name: data.name,
           body: data.body,
           description: data.description,
-          prize: data.prize,
+          prize: +data.prize,
           mode: data.mode,
           type: data.type,
           artworkUrl: imagePath,
@@ -132,18 +168,52 @@ export class TournamentsService {
           },
         });
 
-        const newTeamRelations = data.teams?.map((teamId) => ({
-          teamId: +teamId,
-          tournamentId: where.id,
-        }));
-        await prisma.teamsOnTournaments.createMany({
-          data: newTeamRelations,
+        if (data.teams) {
+          const newTeamRelations = data.teams.map((teamId) => ({
+            teamId: +teamId,
+            tournamentId: where.id,
+          }));
+
+          await prisma.teamsOnTournaments.createMany({
+            data: newTeamRelations,
+          });
+        }
+      }
+
+      if (tagsChanged) {
+        await prisma.tagsOnTournaments.deleteMany({
+          where: {
+            tournamentId: where.id,
+          },
         });
+
+        if (data.tags) {
+          const newTagRelations = data.tags.map((tagId) => ({
+            tagId: +tagId,
+            tournamentId: where.id,
+          }));
+
+          await prisma.tagsOnTournaments.createMany({
+            data: newTagRelations,
+          });
+        }
       }
     });
   }
 
   async deleteTournament(where: Prisma.TournamentWhereUniqueInput) {
+    await this.prisma.tagsOnTournaments.deleteMany({
+      where: {
+        tournamentId: where.id,
+      },
+    });
+
+    await this.prisma.teamsOnTournaments.deleteMany({
+      where: {
+        tournamentId: where.id,
+      },
+    });
+
     const tournament = await this.prisma.tournament.delete({
       where,
     });

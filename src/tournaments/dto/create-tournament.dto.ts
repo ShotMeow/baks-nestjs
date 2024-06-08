@@ -4,11 +4,12 @@ export class CreateTournamentDto {
   name: string;
   body: string;
   description: string;
-  prize: number;
+  prize: string;
   mode: string;
   type: string;
   address: string;
   eventDate: Date;
   imageFile: MemoryStoredFile;
   teams: string[];
+  tags: string[];
 }

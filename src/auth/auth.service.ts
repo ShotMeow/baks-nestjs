@@ -14,12 +14,12 @@ import { PrismaService } from '../database/prisma.service';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private prismaService: PrismaService,
+    private prisma: PrismaService,
     private usersService: UsersService,
   ) {}
 
   async signIn(data: SignInDto) {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         email: data.email,
       },
