@@ -40,8 +40,13 @@ export class TournamentsService {
     };
   }
 
-  async tournaments() {
+  async tournaments(search: string) {
     const tournaments = await this.prisma.tournament.findMany({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
       include: {
         teams: {
           select: {

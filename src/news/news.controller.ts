@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { Prisma } from '@prisma/client';
@@ -17,8 +18,8 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
   @Get()
-  async getPosts() {
-    return this.newsService.posts();
+  async getPosts(@Query('search') search: string) {
+    return this.newsService.posts(search);
   }
 
   @Get(':id')

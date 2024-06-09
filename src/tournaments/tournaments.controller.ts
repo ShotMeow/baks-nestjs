@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { TournamentsService } from './tournaments.service';
@@ -23,8 +24,8 @@ export class TournamentsController {
   }
 
   @Get()
-  async getTournaments() {
-    return this.tournamentsService.tournaments();
+  async getTournaments(@Query('search') search: string) {
+    return this.tournamentsService.tournaments(search);
   }
 
   @Post()

@@ -30,8 +30,13 @@ export class NewsService {
     };
   }
 
-  async posts() {
+  async posts(search: string) {
     const news = await this.prisma.news.findMany({
+      where: {
+        title: {
+          contains: search,
+        },
+      },
       include: {
         tags: {
           include: {

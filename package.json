@@ -1,6 +1,6 @@
 {
   "name": "phygital-nestjs",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "Backend API release for Phygital Basketball",
   "author": "Kai Goldman",
   "private": false,
