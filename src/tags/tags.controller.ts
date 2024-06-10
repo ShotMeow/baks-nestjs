@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
 import { Prisma } from '@prisma/client';
@@ -21,8 +22,8 @@ export class TagsController {
   }
 
   @Get()
-  async getTags() {
-    return this.tagsService.tags();
+  async getTags(@Query() query: { search: string }) {
+    return this.tagsService.tags(query);
   }
 
   @Post()
@@ -37,7 +38,6 @@ export class TagsController {
     @Param('id') id: Prisma.TagWhereUniqueInput,
     @Body() tag: Prisma.TagUpdateInput,
   ) {
-    console.log(tag);
     return this.tagsService.updateTag({ id: Number(id) }, tag);
   }
 

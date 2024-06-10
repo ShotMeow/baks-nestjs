@@ -12,8 +12,14 @@ export class TagsService {
     });
   }
 
-  async tags() {
-    return this.prisma.tag.findMany();
+  async tags({ search }: { search: string }) {
+    return this.prisma.tag.findMany({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
+    });
   }
 
   async createTag(data: Prisma.TagCreateInput) {

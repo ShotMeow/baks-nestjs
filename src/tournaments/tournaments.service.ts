@@ -40,11 +40,26 @@ export class TournamentsService {
     };
   }
 
-  async tournaments(search: string) {
+  async tournaments({
+    search,
+    tag,
+    sort,
+  }: {
+    search: string;
+    tag: string;
+    sort: 'asc' | 'desc';
+  }) {
     const tournaments = await this.prisma.tournament.findMany({
       where: {
         name: {
           contains: search,
+        },
+        tags: {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
         },
       },
       include: {
@@ -62,6 +77,9 @@ export class TournamentsService {
             tag: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: sort,
       },
     });
 

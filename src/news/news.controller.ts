@@ -18,8 +18,10 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
   @Get()
-  async getPosts(@Query('search') search: string) {
-    return this.newsService.posts(search);
+  async getPosts(
+    @Query() query: { search: string; tag: string; sort: 'asc' | 'desc' },
+  ) {
+    return this.newsService.posts(query);
   }
 
   @Get(':id')

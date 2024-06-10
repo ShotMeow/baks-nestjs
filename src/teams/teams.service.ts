@@ -100,7 +100,6 @@ export class TeamsService {
       await this.imagesService.deleteImage(team.logoUrl);
       delete data.imageFile;
     }
-    console.log(data);
     const users = await this.prisma.user.findMany();
     users?.map(async (user) => {
       if (!data.players?.includes(String(user.id))) {

@@ -24,8 +24,10 @@ export class TournamentsController {
   }
 
   @Get()
-  async getTournaments(@Query('search') search: string) {
-    return this.tournamentsService.tournaments(search);
+  async getTournaments(
+    @Query() query: { search: string; tag: string; sort: 'asc' | 'desc' },
+  ) {
+    return this.tournamentsService.tournaments(query);
   }
 
   @Post()

@@ -30,11 +30,26 @@ export class NewsService {
     };
   }
 
-  async posts(search: string) {
+  async posts({
+    search,
+    tag,
+    sort,
+  }: {
+    search: string;
+    tag: string;
+    sort: 'asc' | 'desc';
+  }) {
     const news = await this.prisma.news.findMany({
       where: {
         title: {
           contains: search,
+        },
+        tags: {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
         },
       },
       include: {
@@ -43,6 +58,9 @@ export class NewsService {
             tag: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: sort,
       },
     });
 
