@@ -23,7 +23,12 @@ export class StreamsService {
   }
 
   async createStream(data: CreateStreamDto) {
-    const imagePath = await this.imagesService.uploadImage(data.imageFile);
+    let imagePath: string;
+    if (data.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
+
     return this.prisma.stream.create({
       data: {
         title: data.title,
