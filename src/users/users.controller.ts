@@ -7,7 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(':id')
+  @Get('/:id')
   async getUserById(@Param() id: Prisma.UserWhereUniqueInput) {
     return this.usersService.user(id);
   }
@@ -17,7 +17,7 @@ export class UsersController {
     return this.usersService.users(where);
   }
 
-  @Patch(':id')
+  @Patch('/:id/update')
   async updateUser(
     @Param('id') id: Prisma.UserWhereUniqueInput,
     @Body() data: UpdateUserDto,
@@ -25,7 +25,7 @@ export class UsersController {
     return this.usersService.updateUser(id, data);
   }
 
-  @Delete(':id')
+  @Delete('/:id/delete')
   async deleteUser(where: Prisma.UserWhereUniqueInput) {
     return this.usersService.deleteUser(where);
   }

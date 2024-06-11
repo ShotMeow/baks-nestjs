@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ProductsService } from './products.service';
@@ -23,8 +24,8 @@ export class ProductsController {
   }
 
   @Get()
-  async getStreams() {
-    return this.productsService.products();
+  async getStreams(@Query() query: { take?: string }) {
+    return this.productsService.products(query);
   }
 
   @Post()

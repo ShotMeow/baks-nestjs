@@ -17,7 +17,7 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
-  @Get(':id')
+  @Get('/:id')
   async getTeamById(@Param('id') id: Prisma.TeamWhereUniqueInput) {
     return this.teamsService.team({ id: Number(id) });
   }
@@ -27,7 +27,7 @@ export class TeamsController {
     return this.teamsService.teams();
   }
 
-  @Post()
+  @Post('/create')
   @FormDataRequest()
   async createTeam(
     @Body()
@@ -36,7 +36,7 @@ export class TeamsController {
     return this.teamsService.createTeam(team);
   }
 
-  @Patch(':id')
+  @Patch('/:id/update')
   @FormDataRequest()
   async updateTeam(
     @Param('id') id: Prisma.TeamWhereUniqueInput,
@@ -46,7 +46,7 @@ export class TeamsController {
     return this.teamsService.updateTeam({ id: Number(id) }, team);
   }
 
-  @Delete(':id')
+  @Delete('/:id/delete')
   async deleteTeam(@Param('id') id: Prisma.TeamWhereUniqueInput) {
     return this.teamsService.deleteTeam({ id: Number(id) });
   }

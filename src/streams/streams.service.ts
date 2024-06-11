@@ -18,8 +18,10 @@ export class StreamsService {
     });
   }
 
-  async streams() {
-    return this.prisma.stream.findMany();
+  async streams({ take }: { take?: string }) {
+    return this.prisma.stream.findMany({
+      take: take && +take,
+    });
   }
 
   async createStream(data: CreateStreamDto) {

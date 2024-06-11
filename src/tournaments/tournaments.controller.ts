@@ -18,7 +18,7 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class TournamentsController {
   constructor(private readonly tournamentsService: TournamentsService) {}
 
-  @Get(':id')
+  @Get('/:id')
   async getTournamentById(@Param('id') id: Prisma.TournamentWhereUniqueInput) {
     return this.tournamentsService.tournament({ id: Number(id) });
   }
@@ -30,13 +30,13 @@ export class TournamentsController {
     return this.tournamentsService.tournaments(query);
   }
 
-  @Post()
+  @Post('/create')
   @FormDataRequest()
   async createTournament(@Body() tournament: CreateTournamentDto) {
     return this.tournamentsService.createTournament(tournament);
   }
 
-  @Patch(':id')
+  @Patch('/:id/update')
   @FormDataRequest()
   async updateTournament(
     @Param('id') id: Prisma.TournamentWhereUniqueInput,
@@ -48,7 +48,7 @@ export class TournamentsController {
     );
   }
 
-  @Delete(':id')
+  @Delete('/:id/delete')
   async deleteTournament(@Param('id') id: Prisma.TournamentWhereUniqueInput) {
     return this.tournamentsService.deleteTournament({ id: Number(id) });
   }

@@ -18,8 +18,10 @@ export class ProductsService {
     });
   }
 
-  async products() {
-    return this.prisma.product.findMany();
+  async products({ take }: { take?: string }) {
+    return this.prisma.product.findMany({
+      take: take && +take,
+    });
   }
 
   async createProduct(data: CreateProductDto) {

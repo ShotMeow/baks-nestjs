@@ -16,7 +16,7 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
-  @Get(':id')
+  @Get('/:id')
   async getTagById(@Param('id') id: Prisma.TagWhereUniqueInput) {
     return this.tagsService.tag({ id: Number(id) });
   }
@@ -26,13 +26,13 @@ export class TagsController {
     return this.tagsService.tags(query);
   }
 
-  @Post()
+  @Post('/create')
   @FormDataRequest()
   async createTag(@Body() tag: Prisma.TagCreateInput) {
     return this.tagsService.createTag(tag);
   }
 
-  @Patch(':id')
+  @Patch('/:id/update')
   @FormDataRequest()
   async updateTag(
     @Param('id') id: Prisma.TagWhereUniqueInput,
@@ -41,7 +41,7 @@ export class TagsController {
     return this.tagsService.updateTag({ id: Number(id) }, tag);
   }
 
-  @Delete(':id')
+  @Delete('/:id/delete')
   async deleteTag(@Param('id') id: Prisma.TagWhereUniqueInput) {
     return this.tagsService.deleteTag({ id: Number(id) });
   }
