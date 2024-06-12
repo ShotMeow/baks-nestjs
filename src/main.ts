@@ -19,5 +19,7 @@ async function bootstrap() {
   app.enableCors();
   await app.register(multipart);
   await app.listen(3001);
+
+  return app.getUrl();
 }
-bootstrap();
+bootstrap().then((url) => console.log(`Server running at ${url}`));
