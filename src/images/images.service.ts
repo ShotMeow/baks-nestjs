@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import type { MemoryStoredFile } from 'nestjs-form-data';
+import * as fs from 'fs';
 
 @Injectable()
 export class ImagesService {
   async uploadImage(file: MemoryStoredFile): Promise<string> {
     try {
       const imageName = `${uuidv4()}-${file.originalName}`;
-
       const imagePath = `storage/images/${imageName}`;
 
       if (!fs.existsSync('storage/images')) {

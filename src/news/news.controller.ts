@@ -9,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
-import { Prisma } from '@prisma/client';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FormDataRequest } from 'nestjs-form-data';
@@ -17,6 +16,11 @@ import { FormDataRequest } from 'nestjs-form-data';
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
+  @Get('/:id/view')
+  async addView(@Param('id') id: string) {
+    return this.newsService.addView(+id);
+  }
+
   @Get()
   async getPosts(
     @Query()
@@ -31,8 +35,8 @@ export class NewsController {
   }
 
   @Get('/:id')
-  async getPostById(@Param('id') id: Prisma.NewsWhereUniqueInput) {
-    return this.newsService.post({ id: Number(id) });
+  async getPostById(@Param('id') id: string) {
+    return this.newsService.post(+id);
   }
 
   @Post('/create')
@@ -46,15 +50,12 @@ export class NewsController {
 
   @Patch('/:id/update')
   @FormDataRequest()
-  async updatePost(
-    @Param('id') id: Prisma.NewsWhereUniqueInput,
-    @Body() data: UpdatePostDto,
-  ) {
-    return this.newsService.updatePost({ id: Number(id) }, data);
+  async updatePost(@Param('id') id: string, @Body() data: UpdatePostDto) {
+    return this.newsService.updatePost(+id, data);
   }
 
   @Delete('/:id/delete')
-  async deletePost(@Param('id') id: Prisma.NewsWhereUniqueInput) {
-    return this.newsService.deletePost({ id: Number(id) });
+  async deletePost(@Param('id') id: string) {
+    return this.newsService.deletePost(+id);
   }
 }

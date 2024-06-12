@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma } from '@prisma/client';
 import { ImagesService } from '../images/images.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -12,9 +11,24 @@ export class NewsService {
     private imagesService: ImagesService,
   ) {}
 
-  async post(newsWhereUniqueInput: Prisma.NewsWhereUniqueInput) {
+  async addView(id: number) {
+    return this.prisma.news.update({
+      where: {
+        id,
+      },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  async post(id: number) {
     const post = await this.prisma.news.findUnique({
-      where: newsWhereUniqueInput,
+      where: {
+        id,
+      },
       include: {
         tags: {
           include: {
@@ -47,7 +61,7 @@ export class NewsService {
         title: {
           contains: search,
         },
-        tags: {
+        tags: tag && {
           some: {
             tag: {
               name: tag,
@@ -69,7 +83,7 @@ export class NewsService {
 
     return news.map((post) => ({
       ...post,
-      tags: post.tags.map(({ tag }) => tag),
+      tags: post.tags?.map(({ tag }) => tag),
     }));
   }
 
@@ -97,19 +111,19 @@ export class NewsService {
     });
   }
 
-  async updatePost(where: Prisma.NewsWhereUniqueInput, data: UpdatePostDto) {
+  async updatePost(id: number, data: UpdatePostDto) {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
       const post = await this.prisma.news.findFirst({
-        where,
+        where: { id },
       });
       await this.imagesService.deleteImage(post.artworkUrl);
       delete data.imageFile;
     }
 
     const currentTags = await this.prisma.tagsOnNews.findMany({
-      where: { newsId: where.id },
+      where: { newsId: id },
       select: {
         tagId: true,
       },
@@ -125,7 +139,7 @@ export class NewsService {
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.news.update({
-        where,
+        where: { id },
         data: {
           title: data.title,
           artworkUrl: imagePath,
@@ -137,14 +151,14 @@ export class NewsService {
       if (tagsChanged) {
         await prisma.tagsOnNews.deleteMany({
           where: {
-            newsId: where.id,
+            newsId: id,
           },
         });
 
         if (data.tags) {
           const newTagRelations = data.tags.map((tagId) => ({
             tagId: +tagId,
-            newsId: where.id,
+            newsId: id,
           }));
           await prisma.tagsOnNews.createMany({
             data: newTagRelations,
@@ -154,15 +168,15 @@ export class NewsService {
     });
   }
 
-  async deletePost(where: Prisma.NewsWhereUniqueInput) {
+  async deletePost(id: number) {
     await this.prisma.tagsOnNews.deleteMany({
       where: {
-        newsId: where.id,
+        newsId: id,
       },
     });
 
     const post = await this.prisma.news.delete({
-      where,
+      where: { id },
     });
 
     await this.imagesService.deleteImage(post.artworkUrl);
