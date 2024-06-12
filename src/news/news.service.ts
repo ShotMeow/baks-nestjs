@@ -48,7 +48,7 @@ export class NewsService {
     search,
     tag,
     take,
-    sort,
+    sort = 'desc',
   }: {
     search: string;
     tag: string;
@@ -77,7 +77,7 @@ export class NewsService {
         },
       },
       orderBy: {
-        createdAt: sort,
+        updatedAt: sort,
       },
     });
 
