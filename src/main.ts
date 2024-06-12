@@ -7,6 +7,7 @@ import {
 import multipart from '@fastify/multipart';
 import * as path from 'path';
 
+const PORT = process.env.SERVER_PORT || 3001;
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -19,8 +20,8 @@ async function bootstrap() {
 
   app.enableCors();
   await app.register(multipart);
-  await app.listen(3001);
+  await app.listen(PORT, '0.0.0.0');
 
-  return 3001;
+  return app.getUrl();
 }
-bootstrap().then((port) => console.log(`Server running at ${port}`));
+bootstrap().then((url) => console.log(`Server running at ${url}`));
