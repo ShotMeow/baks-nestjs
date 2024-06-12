@@ -20,6 +20,6 @@ async function bootstrap() {
   await app.register(multipart);
   await app.listen(3001);
 
-  return app.getUrl();
+  return 3001;
 }
-bootstrap().then((url) => console.log(`Server running at ${url}`));
+bootstrap().then((port) => console.log(`Server running at ${port}`));
