@@ -145,6 +145,7 @@ export class NewsService {
           artworkUrl: imagePath,
           description: data.description,
           body: data.body,
+          updatedAt: new Date(),
         },
       });
 

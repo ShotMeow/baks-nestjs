@@ -23,7 +23,7 @@ model News {
   body        String?
   tags        TagsOnNews[]
   views       Int          @default(0)
-  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+  updatedAt   DateTime     @default(now()) @map("updated_at")
   createdAt   DateTime     @default(now()) @map("created_at")
 
   @@map("news")
