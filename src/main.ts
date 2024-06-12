@@ -20,4 +20,4 @@ async function bootstrap() {
   await app.register(multipart);
   await app.listen(3001);
 }
-bootstrap().then(void 0);
+bootstrap();
