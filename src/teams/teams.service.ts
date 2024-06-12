@@ -31,8 +31,22 @@ export class TeamsService {
     };
   }
 
-  async teams() {
+  async teams({
+    search,
+    take,
+    sort = 'desc',
+  }: {
+    search: string;
+    take?: string;
+    sort: 'asc' | 'desc';
+  }) {
     const teams = await this.prisma.team.findMany({
+      take: take && +take,
+      where: {
+        name: {
+          contains: search,
+        },
+      },
       include: {
         players: true,
         tournaments: {
@@ -40,6 +54,9 @@ export class TeamsService {
             tournament: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: sort,
       },
     });
 

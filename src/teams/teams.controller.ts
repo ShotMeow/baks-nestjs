@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { TeamsService } from './teams.service';
@@ -23,8 +24,10 @@ export class TeamsController {
   }
 
   @Get()
-  async getTeams() {
-    return this.teamsService.teams();
+  async getTeams(
+    @Query() query: { search: string; take?: string; sort: 'asc' | 'desc' },
+  ) {
+    return this.teamsService.teams(query);
   }
 
   @Post('/create')

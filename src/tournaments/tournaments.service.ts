@@ -54,7 +54,7 @@ export class TournamentsService {
         name: {
           contains: search,
         },
-        tags: {
+        tags: tag && {
           some: {
             tag: {
               name: tag,
