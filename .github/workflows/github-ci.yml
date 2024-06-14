@@ -38,3 +38,4 @@ jobs:
             docker-compose down
             docker image rm shotmeow/phygital-nestjs:latest
             docker-compose up -d
+            docker exec backend npm run migrate:deploy
