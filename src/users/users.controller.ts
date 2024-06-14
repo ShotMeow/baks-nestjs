@@ -1,7 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('users')
 export class UsersController {
@@ -13,16 +22,17 @@ export class UsersController {
   }
 
   @Get()
-  async getUsers(@Param() where: Prisma.UserWhereInput) {
-    return this.usersService.users(where);
+  async getUsers(@Query() query: { search: string }) {
+    return this.usersService.users(query);
   }
 
   @Patch('/:id/edit')
+  @FormDataRequest()
   async updateUser(
     @Param('id') id: Prisma.UserWhereUniqueInput,
-    @Body() data: UpdateUserDto,
+    @Body() user: UpdateUserDto,
   ) {
-    return this.usersService.updateUser(id, data);
+    return this.usersService.updateUser({ id: Number(id) }, user);
   }
 
   @Delete('/:id/delete')

@@ -32,7 +32,7 @@ export class TeamsService {
   }
 
   async teams({
-    search,
+    search = '',
     take,
     sort = 'desc',
   }: {
@@ -117,6 +117,7 @@ export class TeamsService {
       await this.imagesService.deleteImage(team.logoUrl);
       delete data.imageFile;
     }
+
     const users = await this.prisma.user.findMany();
     users?.map(async (user) => {
       if (!data.players?.includes(String(user.id))) {
@@ -151,13 +152,14 @@ export class TeamsService {
       (tournament) => tournament.tournamentId,
     );
 
-    const tournamentsChanged =
-      currentTournamentIds && data.tournaments
-        ? JSON.stringify(currentTournamentIds.sort()) !==
-          JSON.stringify(
-            data.tournaments?.map((tournament) => +tournament).sort(),
-          )
-        : false;
+    const tournamentsChanged = currentTournamentIds
+      ? JSON.stringify(currentTournamentIds.sort()) !==
+        (data.tournaments
+          ? JSON.stringify(
+              data.tournaments.map((tournament) => +tournament).sort(),
+            )
+          : '')
+      : false;
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.team.update({
@@ -179,16 +181,18 @@ export class TeamsService {
           },
         });
 
-        const newTournamentsRelations = data.tournaments?.map(
-          (tournamentId) => ({
-            tournamentId: +tournamentId,
-            teamId: where.id,
-          }),
-        );
+        if (data.tournaments) {
+          const newTournamentsRelations = data.tournaments.map(
+            (tournamentId) => ({
+              tournamentId: +tournamentId,
+              teamId: where.id,
+            }),
+          );
 
-        await prisma.teamsOnTournaments.createMany({
-          data: newTournamentsRelations,
-        });
+          await prisma.teamsOnTournaments.createMany({
+            data: newTournamentsRelations,
+          });
+        }
       }
     });
   }

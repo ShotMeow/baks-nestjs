@@ -12,7 +12,7 @@ export class TagsService {
     });
   }
 
-  async tags({ search }: { search: string }) {
+  async tags({ search = '' }: { search: string }) {
     return this.prisma.tag.findMany({
       where: {
         name: {

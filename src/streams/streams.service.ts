@@ -18,7 +18,7 @@ export class StreamsService {
     });
   }
 
-  async streams({ search, take }: { search: string; take?: string }) {
+  async streams({ search = '', take }: { search: string; take?: string }) {
     return this.prisma.stream.findMany({
       take: take && +take,
       where: {

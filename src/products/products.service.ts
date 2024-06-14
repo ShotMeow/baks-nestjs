@@ -18,7 +18,7 @@ export class ProductsService {
     });
   }
 
-  async products({ search, take }: { search: string; take?: string }) {
+  async products({ search = '', take }: { search: string; take?: string }) {
     return this.prisma.product.findMany({
       take: take && +take,
       where: {

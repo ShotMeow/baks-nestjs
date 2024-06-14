@@ -45,13 +45,13 @@ export class NewsService {
   }
 
   async posts({
-    search,
+    search = '',
     tag,
     take,
     sort = 'desc',
   }: {
     search: string;
-    tag: string;
+    tag?: string;
     take?: string;
     sort: 'asc' | 'desc';
   }) {

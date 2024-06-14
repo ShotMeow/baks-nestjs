@@ -41,9 +41,9 @@ export class TournamentsService {
   }
 
   async tournaments({
-    search,
+    search = '',
     tag,
-    sort,
+    sort = 'desc',
   }: {
     search: string;
     tag: string;

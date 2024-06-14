@@ -40,10 +40,51 @@ export class UsersService {
     };
   }
 
-  async users(where: Prisma.UserWhereInput) {
-    return this.prisma.user.findMany({
-      where,
+  async users({ search = '' }: { search: string }) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            nickname: {
+              contains: search,
+            },
+          },
+          {
+            name: {
+              contains: search,
+            },
+          },
+          {
+            team: {
+              name: {
+                contains: search,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        team: {
+          include: {
+            tournaments: {
+              include: {
+                tournament: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    return users.map((user) => ({
+      ...user,
+      team: {
+        ...user.team,
+        tournaments: user.team?.tournaments?.map(
+          ({ tournament }) => tournament,
+        ),
+      },
+    }));
   }
 
   async createUser(data: CreateUserDto) {
@@ -60,16 +101,24 @@ export class UsersService {
   }
 
   async updateUser(where: Prisma.UserWhereUniqueInput, data: UpdateUserDto) {
-    const imagePath = await this.imagesService.uploadImage(data.imageFile);
-    delete data.imageFile;
-    if (data.password) {
+    let imagePath: string;
+    if (data?.imageFile) {
+      imagePath = await this.imagesService.uploadImage(data.imageFile);
+      delete data.imageFile;
+    }
+
+    if (data?.password) {
       data.password = await bcrypt.hash(data.password as string, 10);
     }
+
     return this.prisma.user.update({
       where,
       data: {
         ...data,
         pictureUrl: imagePath,
+        killDeaths: +data.killDeaths,
+        deaths: +data.deaths,
+        assists: +data.assists,
       },
     });
   }
