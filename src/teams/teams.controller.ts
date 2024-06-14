@@ -39,7 +39,7 @@ export class TeamsController {
     return this.teamsService.createTeam(team);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updateTeam(
     @Param('id') id: Prisma.TeamWhereUniqueInput,

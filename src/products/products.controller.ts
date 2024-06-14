@@ -18,7 +18,7 @@ import { FormDataRequest } from 'nestjs-form-data';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Get(':id')
+  @Get('/:id')
   async getProductById(@Param('id') id: Prisma.ProductWhereUniqueInput) {
     return this.productsService.product({ id: Number(id) });
   }
@@ -28,13 +28,13 @@ export class ProductsController {
     return this.productsService.products(query);
   }
 
-  @Post()
+  @Post('/create')
   @FormDataRequest()
   async createProduct(@Body() data: CreateProductDto) {
     return this.productsService.createProduct(data);
   }
 
-  @Patch(':id')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updateProduct(
     @Param('id') id: Prisma.ProductWhereUniqueInput,
@@ -43,7 +43,7 @@ export class ProductsController {
     return this.productsService.updateProduct({ id: Number(id) }, data);
   }
 
-  @Delete(':id')
+  @Delete('/:id/delete')
   async deleteStream(@Param('id') id: Prisma.ProductWhereUniqueInput) {
     return this.productsService.deleteProduct({ id: Number(id) });
   }

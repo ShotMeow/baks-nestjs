@@ -66,11 +66,12 @@ model Stream {
 // Shop
 
 model Product {
-  id         Int      @id @default(autoincrement())
-  name       String
-  price      Int?
-  pictureUrl String?  @map("picture_url")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Int?
+  pictureUrl  String?  @map("picture_url")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("products")
 }
@@ -124,6 +125,7 @@ model Tournament {
   teams       TeamsOnTournaments[]
   address     String?
   eventDate   DateTime?            @map("event_date")
+  gridUrl     String?              @map("grid_url")
   tags        TagsOnTournaments[]
   createdAt   DateTime             @default(now()) @map("created_at")
 

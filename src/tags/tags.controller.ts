@@ -32,7 +32,7 @@ export class TagsController {
     return this.tagsService.createTag(tag);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updateTag(
     @Param('id') id: Prisma.TagWhereUniqueInput,

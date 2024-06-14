@@ -36,7 +36,7 @@ export class TournamentsController {
     return this.tournamentsService.createTournament(tournament);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updateTournament(
     @Param('id') id: Prisma.TournamentWhereUniqueInput,

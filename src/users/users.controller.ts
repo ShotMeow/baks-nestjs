@@ -17,7 +17,7 @@ export class UsersController {
     return this.usersService.users(where);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   async updateUser(
     @Param('id') id: Prisma.UserWhereUniqueInput,
     @Body() data: UpdateUserDto,

@@ -48,7 +48,7 @@ export class NewsController {
     return this.newsService.createPost(data);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updatePost(@Param('id') id: string, @Body() data: UpdatePostDto) {
     return this.newsService.updatePost(+id, data);

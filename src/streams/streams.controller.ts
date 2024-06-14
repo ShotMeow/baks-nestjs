@@ -34,7 +34,7 @@ export class StreamsController {
     return this.streamsService.createStream(data);
   }
 
-  @Patch('/:id/update')
+  @Patch('/:id/edit')
   @FormDataRequest()
   async updateStream(
     @Param('id') id: Prisma.StreamWhereUniqueInput,
