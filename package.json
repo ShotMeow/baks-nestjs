@@ -1,11 +1,11 @@
 {
-  "name": "phygital-nestjs",
-  "description": "Backend API release for Phygital Basketball",
+  "name": "baks-nestjs",
+  "description": "Backend API release for Baks.gg",
   "author": "Kai Goldman",
   "version": "0.5.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ShotMeow/phygital-nestjs.git"
+    "url": "https://github.com/ShotMeow/baks-nestjs.git"
   },
   "private": false,
   "scripts": {
