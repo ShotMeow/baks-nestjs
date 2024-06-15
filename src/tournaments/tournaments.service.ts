@@ -183,6 +183,7 @@ export class TournamentsService {
           type: data.type,
           artworkUrl: imagePath,
           address: data.address,
+          gridUrl: data.gridUrl,
           eventDate: data.eventDate,
         },
       });

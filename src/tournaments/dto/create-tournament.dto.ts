@@ -9,6 +9,7 @@ export class CreateTournamentDto {
   type: string;
   address: string;
   eventDate: Date;
+  gridUrl: string;
   imageFile: MemoryStoredFile;
   teams: string[];
   tags: string[];
