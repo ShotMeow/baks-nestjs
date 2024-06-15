@@ -19,8 +19,8 @@ export class TournamentsController {
   constructor(private readonly tournamentsService: TournamentsService) {}
 
   @Get('/:id')
-  async getTournamentById(@Param('id') id: Prisma.TournamentWhereUniqueInput) {
-    return this.tournamentsService.tournament({ id: Number(id) });
+  async getTournamentById(@Param('id') id: string) {
+    return this.tournamentsService.tournament(+id);
   }
 
   @Get()
@@ -39,17 +39,14 @@ export class TournamentsController {
   @Patch('/:id/edit')
   @FormDataRequest()
   async updateTournament(
-    @Param('id') id: Prisma.TournamentWhereUniqueInput,
+    @Param('id') id: string,
     @Body() tournament: UpdateTournamentDto,
   ) {
-    return this.tournamentsService.updateTournament(
-      { id: Number(id) },
-      tournament,
-    );
+    return this.tournamentsService.updateTournament(+id, tournament);
   }
 
   @Delete('/:id/delete')
-  async deleteTournament(@Param('id') id: Prisma.TournamentWhereUniqueInput) {
-    return this.tournamentsService.deleteTournament({ id: Number(id) });
+  async deleteTournament(@Param('id') id: string) {
+    return this.tournamentsService.deleteTournament(+id);
   }
 }

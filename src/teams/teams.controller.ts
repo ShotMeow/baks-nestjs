@@ -19,8 +19,8 @@ export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
   @Get('/:id')
-  async getTeamById(@Param('id') id: Prisma.TeamWhereUniqueInput) {
-    return this.teamsService.team({ id: Number(id) });
+  async getTeamById(@Param('id') id: string) {
+    return this.teamsService.team(+id);
   }
 
   @Get()
@@ -42,15 +42,15 @@ export class TeamsController {
   @Patch('/:id/edit')
   @FormDataRequest()
   async updateTeam(
-    @Param('id') id: Prisma.TeamWhereUniqueInput,
+    @Param('id') id: string,
     @Body()
     team: UpdateTeamDto,
   ) {
-    return this.teamsService.updateTeam({ id: Number(id) }, team);
+    return this.teamsService.updateTeam(+id, team);
   }
 
   @Delete('/:id/delete')
-  async deleteTeam(@Param('id') id: Prisma.TeamWhereUniqueInput) {
-    return this.teamsService.deleteTeam({ id: Number(id) });
+  async deleteTeam(@Param('id') id: string) {
+    return this.teamsService.deleteTeam(+id);
   }
 }

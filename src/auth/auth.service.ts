@@ -48,8 +48,6 @@ export class AuthService {
   }
 
   async getAuthUser(userId: number) {
-    return this.usersService.user({
-      id: userId,
-    });
+    return this.usersService.user(+userId);
   }
 }

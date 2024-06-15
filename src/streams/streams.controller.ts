@@ -19,8 +19,8 @@ export class StreamsController {
   constructor(private readonly streamsService: StreamsService) {}
 
   @Get('/:id')
-  async getStreamById(@Param('id') id: Prisma.StreamWhereUniqueInput) {
-    return this.streamsService.stream({ id: Number(id) });
+  async getStreamById(@Param('id') id: string) {
+    return this.streamsService.stream(+id);
   }
 
   @Get()
@@ -36,15 +36,12 @@ export class StreamsController {
 
   @Patch('/:id/edit')
   @FormDataRequest()
-  async updateStream(
-    @Param('id') id: Prisma.StreamWhereUniqueInput,
-    @Body() data: UpdateStreamDto,
-  ) {
-    return this.streamsService.updateStream({ id: Number(id) }, data);
+  async updateStream(@Param('id') id: string, @Body() data: UpdateStreamDto) {
+    return this.streamsService.updateStream(+id, data);
   }
 
   @Delete('/:id/delete')
   async deleteStream(@Param('id') id: string) {
-    return this.streamsService.deleteStream({ id: Number(id) });
+    return this.streamsService.deleteStream(+id);
   }
 }

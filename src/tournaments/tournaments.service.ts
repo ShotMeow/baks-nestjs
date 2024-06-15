@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma } from '@prisma/client';
 import { ImagesService } from '../images/images.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
@@ -12,9 +11,9 @@ export class TournamentsService {
     private imagesService: ImagesService,
   ) {}
 
-  async tournament(tagWhereUniqueInput: Prisma.TournamentWhereUniqueInput) {
+  async tournament(id: number) {
     const tournament = await this.prisma.tournament.findUnique({
-      where: tagWhereUniqueInput,
+      where: { id },
       include: {
         teams: {
           select: {
@@ -127,22 +126,21 @@ export class TournamentsService {
     });
   }
 
-  async updateTournament(
-    where: Prisma.TournamentWhereUniqueInput,
-    data: UpdateTournamentDto,
-  ) {
+  async updateTournament(id: number, data: UpdateTournamentDto) {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
-      const tournament = await this.prisma.tournament.findFirst({
-        where,
+      const tournament = await this.prisma.tournament.findUnique({
+        where: {
+          id,
+        },
       });
       await this.imagesService.deleteImage(tournament.artworkUrl);
       delete data.imageFile;
     }
 
     const currentTags = await this.prisma.tagsOnNews.findMany({
-      where: { newsId: where.id },
+      where: { newsId: id },
       select: {
         tagId: true,
       },
@@ -156,7 +154,7 @@ export class TournamentsService {
       : false;
 
     const currentTeams = await this.prisma.teamsOnTournaments.findMany({
-      where: { tournamentId: where.id },
+      where: { tournamentId: id },
       select: {
         teamId: true,
       },
@@ -173,7 +171,7 @@ export class TournamentsService {
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.tournament.update({
-        where,
+        where: { id },
         data: {
           name: data.name,
           body: data.body,
@@ -191,14 +189,14 @@ export class TournamentsService {
       if (teamsChanged) {
         await prisma.teamsOnTournaments.deleteMany({
           where: {
-            tournamentId: where.id,
+            tournamentId: id,
           },
         });
 
         if (data.teams) {
           const newTeamRelations = data.teams.map((teamId) => ({
             teamId: +teamId,
-            tournamentId: where.id,
+            tournamentId: id,
           }));
 
           await prisma.teamsOnTournaments.createMany({
@@ -210,14 +208,14 @@ export class TournamentsService {
       if (tagsChanged) {
         await prisma.tagsOnTournaments.deleteMany({
           where: {
-            tournamentId: where.id,
+            tournamentId: id,
           },
         });
 
         if (data.tags) {
           const newTagRelations = data.tags.map((tagId) => ({
             tagId: +tagId,
-            tournamentId: where.id,
+            tournamentId: id,
           }));
 
           await prisma.tagsOnTournaments.createMany({
@@ -228,21 +226,23 @@ export class TournamentsService {
     });
   }
 
-  async deleteTournament(where: Prisma.TournamentWhereUniqueInput) {
+  async deleteTournament(id: number) {
     await this.prisma.tagsOnTournaments.deleteMany({
       where: {
-        tournamentId: where.id,
+        tournamentId: id,
       },
     });
 
     await this.prisma.teamsOnTournaments.deleteMany({
       where: {
-        tournamentId: where.id,
+        tournamentId: id,
       },
     });
 
     const tournament = await this.prisma.tournament.delete({
-      where,
+      where: {
+        id,
+      },
     });
 
     await this.imagesService.deleteImage(tournament.artworkUrl);

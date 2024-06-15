@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import { CreateTagDto } from './dto/create-tag.dto';
+import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Injectable()
 export class TagsService {
   constructor(private prisma: PrismaService) {}
 
-  async tag(tagWhereUniqueInput: Prisma.TagWhereUniqueInput) {
+  async tag(id: number) {
     return this.prisma.tag.findUnique({
-      where: tagWhereUniqueInput,
+      where: { id },
     });
   }
 
@@ -22,25 +24,22 @@ export class TagsService {
     });
   }
 
-  async createTag(data: Prisma.TagCreateInput) {
+  async createTag(data: CreateTagDto) {
     return this.prisma.tag.create({
       data,
     });
   }
 
-  async updateTag(
-    where: Prisma.TagWhereUniqueInput,
-    data: Prisma.TagUpdateInput,
-  ) {
+  async updateTag(id: number, data: UpdateTagDto) {
     return this.prisma.tag.update({
-      where,
+      where: { id },
       data,
     });
   }
 
-  async deleteTag(where: Prisma.TagWhereUniqueInput) {
+  async deleteTag(id: number) {
     return this.prisma.tag.delete({
-      where,
+      where: { id },
     });
   }
 }

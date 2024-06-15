@@ -8,7 +8,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import type { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FormDataRequest } from 'nestjs-form-data';
 
@@ -17,8 +16,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('/:id')
-  async getUserById(@Param() id: Prisma.UserWhereUniqueInput) {
-    return this.usersService.user(id);
+  async getUserById(@Param() id: string) {
+    return this.usersService.user(+id);
   }
 
   @Get()
@@ -28,11 +27,8 @@ export class UsersController {
 
   @Patch('/:id/edit')
   @FormDataRequest()
-  async updateUser(
-    @Param('id') id: Prisma.UserWhereUniqueInput,
-    @Body() user: UpdateUserDto,
-  ) {
-    return this.usersService.updateUser({ id: Number(id) }, user);
+  async updateUser(@Param('id') id: string, @Body() user: UpdateUserDto) {
+    return this.usersService.updateUser(+id, user);
   }
 
   @Delete('/:id/delete')

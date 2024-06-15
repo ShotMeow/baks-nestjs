@@ -12,9 +12,9 @@ export class StreamsService {
     private imagesService: ImagesService,
   ) {}
 
-  async stream(streamWhereUniqueInput: Prisma.StreamWhereUniqueInput) {
+  async stream(id: number) {
     return this.prisma.stream.findUnique({
-      where: streamWhereUniqueInput,
+      where: { id },
     });
   }
 
@@ -46,20 +46,17 @@ export class StreamsService {
     });
   }
 
-  async updateStream(
-    where: Prisma.StreamWhereUniqueInput,
-    data: UpdateStreamDto,
-  ) {
+  async updateStream(id: number, data: UpdateStreamDto) {
     let imagePath: string;
     if (data.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
-      const stream = await this.prisma.stream.findUnique({ where });
+      const stream = await this.prisma.stream.findUnique({ where: { id } });
       await this.imagesService.deleteImage(stream.posterUrl);
       delete data.imageFile;
     }
 
     return this.prisma.stream.update({
-      where,
+      where: { id },
       data: {
         ...data,
         posterUrl: imagePath,
@@ -67,9 +64,9 @@ export class StreamsService {
     });
   }
 
-  async deleteStream(where: Prisma.StreamWhereUniqueInput) {
+  async deleteStream(id: number) {
     const stream = await this.prisma.stream.delete({
-      where,
+      where: { id },
     });
     await this.imagesService.deleteImage(stream.posterUrl);
 

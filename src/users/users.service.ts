@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,9 +12,9 @@ export class UsersService {
     private imagesService: ImagesService,
   ) {}
 
-  async user(where: Prisma.UserWhereUniqueInput) {
+  async user(id: number) {
     const user = await this.prisma.user.findUnique({
-      where,
+      where: { id },
       include: {
         team: {
           include: {
@@ -100,7 +99,7 @@ export class UsersService {
     });
   }
 
-  async updateUser(where: Prisma.UserWhereUniqueInput, data: UpdateUserDto) {
+  async updateUser(id: number, data: UpdateUserDto) {
     let imagePath: string;
     if (data?.imageFile) {
       imagePath = await this.imagesService.uploadImage(data.imageFile);
@@ -112,7 +111,7 @@ export class UsersService {
     }
 
     return this.prisma.user.update({
-      where,
+      where: { id },
       data: {
         ...data,
         pictureUrl: imagePath,
