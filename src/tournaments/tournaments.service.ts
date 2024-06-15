@@ -43,13 +43,16 @@ export class TournamentsService {
   async tournaments({
     search = '',
     tag,
+    take,
     sort = 'desc',
   }: {
     search: string;
-    tag: string;
+    tag?: string;
+    take?: string;
     sort: 'asc' | 'desc';
   }) {
     const tournaments = await this.prisma.tournament.findMany({
+      take: take && +take,
       where: {
         name: {
           contains: search,

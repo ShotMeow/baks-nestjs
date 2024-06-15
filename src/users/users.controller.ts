@@ -36,7 +36,7 @@ export class UsersController {
   }
 
   @Delete('/:id/delete')
-  async deleteUser(where: Prisma.UserWhereUniqueInput) {
-    return this.usersService.deleteUser(where);
+  async deleteUser(@Param('id') id: string) {
+    return this.usersService.deleteUser(id);
   }
 }
