@@ -16,23 +16,20 @@ export class TagsService {
 
   async tags({
     page = 1,
-    search = '',
     take = 10,
+    search = '',
   }: {
     page?: number;
     take?: number;
     search: string;
   }) {
-    const skip = (page - 1) * take;
-
     const totalTagsCount = await this.prisma.tag.count();
 
-    const pagesCount = Math.ceil(totalTagsCount / take);
-    const visiblePages = 5;
+    const skip = take && (page - 1) * take;
 
     const tags = await this.prisma.tag.findMany({
-      take: !search && take,
-      skip: !search && skip,
+      take,
+      skip,
       where: {
         name: {
           contains: search,
@@ -43,6 +40,9 @@ export class TagsService {
       },
     });
 
+    const pagesCount = Math.ceil(totalTagsCount / take);
+    const visiblePages = 5;
+
     const pagination = {
       currentPage: page,
       lastPage: pagesCount,
@@ -51,7 +51,6 @@ export class TagsService {
         (_, k) => {
           let startPage = 1;
 
-          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,

@@ -57,8 +57,6 @@ export class NewsService {
     take?: number;
     sort: 'asc' | 'desc';
   }) {
-    const skip = (page - 1) * take;
-
     const totalNewsCount = await this.prisma.news.count({
       where: {
         title: {
@@ -74,9 +72,11 @@ export class NewsService {
       },
     });
 
+    const skip = take && (page - 1) * take;
+
     const news = await this.prisma.news.findMany({
-      take: !search && !tag && take,
-      skip: !search && !tag && skip,
+      take: !search && !tag ? take : undefined,
+      skip: !search && !tag ? skip : undefined,
       where: {
         title: {
           contains: search,
@@ -112,7 +112,6 @@ export class NewsService {
         (_, k) => {
           let startPage = 1;
 
-          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,

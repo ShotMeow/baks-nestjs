@@ -41,27 +41,21 @@ export class TeamsService {
     take?: number;
     sort: 'asc' | 'desc';
   }) {
-    const skip = (page - 1) * take;
+    const whereCondition = {
+      name: {
+        contains: search,
+      },
+    };
 
     const totalTeamsCount = await this.prisma.team.count({
-      where: {
-        name: {
-          contains: search,
-        },
-      },
+      where: whereCondition,
     });
 
     const pagesCount = Math.ceil(totalTeamsCount / take);
     const visiblePages = 5;
 
-    const teams = await this.prisma.team.findMany({
-      take: !search && take,
-      skip: !search && skip,
-      where: {
-        name: {
-          contains: search,
-        },
-      },
+    const queryObject = {
+      where: whereCondition,
       include: {
         players: true,
         tournaments: {
@@ -73,7 +67,16 @@ export class TeamsService {
       orderBy: {
         updatedAt: sort,
       },
-    });
+      skip: undefined,
+      take: undefined,
+    };
+
+    if (search === '') {
+      queryObject.take = take;
+      queryObject.skip = (page - 1) * take;
+    }
+
+    const teams = await this.prisma.team.findMany(queryObject);
 
     const pagination = {
       currentPage: page,
@@ -83,7 +86,6 @@ export class TeamsService {
         (_, k) => {
           let startPage = 1;
 
-          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,

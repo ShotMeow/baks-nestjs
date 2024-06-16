@@ -26,8 +26,6 @@ export class StreamsService {
     search: string;
     take?: number;
   }) {
-    const skip = (page - 1) * take;
-
     const totalStreamsCount = await this.prisma.stream.count({
       where: {
         title: {
@@ -36,9 +34,11 @@ export class StreamsService {
       },
     });
 
+    const skip = take && (page - 1) * take;
+
     const streams = await this.prisma.stream.findMany({
-      take: !search && take,
-      skip: !search && skip,
+      take: !search ? take : undefined,
+      skip: !search ? skip : undefined,
       where: {
         title: {
           contains: search,
@@ -60,7 +60,6 @@ export class StreamsService {
         (_, k) => {
           let startPage = 1;
 
-          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,
