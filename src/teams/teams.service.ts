@@ -33,7 +33,7 @@ export class TeamsService {
   async teams({
     page = 1,
     search = '',
-    take = 10,
+    take = 12,
     sort = 'desc',
   }: {
     page?: number;
