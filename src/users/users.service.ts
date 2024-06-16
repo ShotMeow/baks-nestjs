@@ -41,7 +41,7 @@ export class UsersService {
 
   async users({
     page = 1,
-    take = 10,
+    take,
     search = '',
   }: {
     page?: number;
