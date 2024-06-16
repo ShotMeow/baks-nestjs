@@ -75,8 +75,8 @@ export class NewsService {
     });
 
     const news = await this.prisma.news.findMany({
-      take,
-      skip,
+      take: !search && !tag && take,
+      skip: !search && !tag && skip,
       where: {
         title: {
           contains: search,

@@ -73,8 +73,8 @@ export class TournamentsService {
     const visiblePages = 5;
 
     const tournaments = await this.prisma.tournament.findMany({
-      take,
-      skip,
+      take: !search && !tag && take,
+      skip: !search && !tag && skip,
       where: {
         name: {
           contains: search,

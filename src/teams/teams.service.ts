@@ -55,8 +55,8 @@ export class TeamsService {
     const visiblePages = 5;
 
     const teams = await this.prisma.team.findMany({
-      take,
-      skip,
+      take: !search && take,
+      skip: !search && skip,
       where: {
         name: {
           contains: search,

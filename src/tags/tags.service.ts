@@ -31,8 +31,8 @@ export class TagsService {
     const visiblePages = 5;
 
     const tags = await this.prisma.tag.findMany({
-      take,
-      skip,
+      take: !search && take,
+      skip: !search && skip,
       where: {
         name: {
           contains: search,

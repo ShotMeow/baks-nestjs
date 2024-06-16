@@ -37,8 +37,8 @@ export class StreamsService {
     });
 
     const streams = await this.prisma.stream.findMany({
-      take,
-      skip,
+      take: !search && take,
+      skip: !search && skip,
       where: {
         title: {
           contains: search,

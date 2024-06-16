@@ -41,8 +41,8 @@ export class ProductsService {
     const visiblePages = 5;
 
     const products = await this.prisma.product.findMany({
-      take,
-      skip,
+      take: !search && take,
+      skip: !search && skip,
       where: {
         name: {
           contains: search,
