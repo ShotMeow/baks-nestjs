@@ -59,7 +59,20 @@ export class NewsService {
   }) {
     const skip = (page - 1) * take;
 
-    const totalNewsCount = await this.prisma.news.count();
+    const totalNewsCount = await this.prisma.news.count({
+      where: {
+        title: {
+          contains: search,
+        },
+        tags: tag && {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
+        },
+      },
+    });
 
     const news = await this.prisma.news.findMany({
       take,

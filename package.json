@@ -2,7 +2,7 @@
   "name": "baks-nestjs",
   "description": "Backend API release for Baks.gg",
   "author": "Kai Goldman",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/ShotMeow/baks-nestjs.git"

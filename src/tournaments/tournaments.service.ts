@@ -54,7 +54,20 @@ export class TournamentsService {
   }) {
     const skip = (page - 1) * take;
 
-    const totalTournamentsCount = await this.prisma.tournament.count();
+    const totalTournamentsCount = await this.prisma.tournament.count({
+      where: {
+        name: {
+          contains: search,
+        },
+        tags: tag && {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
+        },
+      },
+    });
 
     const pagesCount = Math.ceil(totalTournamentsCount / take);
     const visiblePages = 5;

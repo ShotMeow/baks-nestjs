@@ -29,7 +29,13 @@ export class ProductsService {
   }) {
     const skip = (page - 1) * take;
 
-    const totalProductsCount = await this.prisma.product.count();
+    const totalProductsCount = await this.prisma.product.count({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
+    });
 
     const pagesCount = Math.ceil(totalProductsCount / take);
     const visiblePages = 5;

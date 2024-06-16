@@ -28,7 +28,13 @@ export class StreamsService {
   }) {
     const skip = (page - 1) * take;
 
-    const totalStreamsCount = await this.prisma.stream.count();
+    const totalStreamsCount = await this.prisma.stream.count({
+      where: {
+        title: {
+          contains: search,
+        },
+      },
+    });
 
     const streams = await this.prisma.stream.findMany({
       take,

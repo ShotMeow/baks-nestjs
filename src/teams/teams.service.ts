@@ -43,7 +43,13 @@ export class TeamsService {
   }) {
     const skip = (page - 1) * take;
 
-    const totalTeamsCount = await this.prisma.team.count();
+    const totalTeamsCount = await this.prisma.team.count({
+      where: {
+        name: {
+          contains: search,
+        },
+      },
+    });
 
     const pagesCount = Math.ceil(totalTeamsCount / take);
     const visiblePages = 5;
@@ -153,27 +159,29 @@ export class TeamsService {
     }
 
     const users = await this.prisma.user.findMany();
-    users?.map(async (user) => {
-      if (!data.players?.includes(String(user.id))) {
-        await this.prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            teamId: null,
-          },
-        });
-      } else {
-        await this.prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            teamId: id,
-          },
-        });
-      }
-    });
+
+    const playersToAdd = users.filter(
+      (user) => data.players?.includes(String(user.id)) && user.teamId !== id,
+    );
+    console.log(playersToAdd);
+
+    for (const player of playersToAdd) {
+      await this.prisma.user.update({
+        where: { id: +player.id },
+        data: { teamId: id },
+      });
+    }
+
+    const playersToRemove = users.filter(
+      (user) => user.teamId === id && !data.players?.includes(String(user.id)),
+    );
+
+    for (const playerToRemove of playersToRemove) {
+      await this.prisma.user.update({
+        where: { id: playerToRemove.id },
+        data: { teamId: null },
+      });
+    }
 
     const currentTournaments = await this.prisma.teamsOnTournaments.findMany({
       where: { teamId: id },
