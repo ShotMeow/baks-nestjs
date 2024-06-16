@@ -24,8 +24,14 @@ export class ProductsController {
   }
 
   @Get()
-  async getStreams(@Query() query: { search: string; take?: string }) {
-    return this.productsService.products(query);
+  async getProducts(
+    @Query() query: { page?: string; search: string; take?: string },
+  ) {
+    return this.productsService.products({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Post('/create')

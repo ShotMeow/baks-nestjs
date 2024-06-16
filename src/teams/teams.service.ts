@@ -31,16 +31,26 @@ export class TeamsService {
   }
 
   async teams({
+    page = 1,
     search = '',
-    take,
+    take = 10,
     sort = 'desc',
   }: {
+    page?: number;
     search: string;
-    take?: string;
+    take?: number;
     sort: 'asc' | 'desc';
   }) {
+    const skip = (page - 1) * take;
+
+    const totalTeamsCount = await this.prisma.team.count();
+
+    const pagesCount = Math.ceil(totalTeamsCount / take);
+    const visiblePages = 5;
+
     const teams = await this.prisma.team.findMany({
-      take: take && +take,
+      take,
+      skip,
       where: {
         name: {
           contains: search,
@@ -59,10 +69,35 @@ export class TeamsService {
       },
     });
 
-    return teams.map((team) => ({
-      ...team,
-      tournaments: team.tournaments.map(({ tournament }) => tournament),
-    }));
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalTeamsCount,
+    };
+
+    return {
+      data: teams.map((team) => ({
+        ...team,
+        tournaments: team.tournaments.map(({ tournament }) => tournament),
+      })),
+      pagination,
+    };
   }
 
   async createTeam(data: CreateTeamDto) {
@@ -161,18 +196,6 @@ export class TeamsService {
       : false;
 
     return this.prisma.$transaction(async (prisma) => {
-      await prisma.team.update({
-        where: { id },
-        data: {
-          name: data.name,
-          body: data.body,
-          winsPercent: +data.winsPercent,
-          gamesCount: +data.gamesCount,
-          lastMatch: data.lastMatch,
-          logoUrl: imagePath,
-        },
-      });
-
       if (tournamentsChanged) {
         await prisma.teamsOnTournaments.deleteMany({
           where: {
@@ -193,6 +216,18 @@ export class TeamsService {
           });
         }
       }
+
+      return prisma.team.update({
+        where: { id },
+        data: {
+          name: data.name,
+          body: data.body,
+          winsPercent: +data.winsPercent,
+          gamesCount: +data.gamesCount,
+          lastMatch: data.lastMatch,
+          logoUrl: imagePath,
+        },
+      });
     });
   }
 

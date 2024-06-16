@@ -25,9 +25,20 @@ export class TournamentsController {
 
   @Get()
   async getTournaments(
-    @Query() query: { search: string; tag: string; sort: 'asc' | 'desc' },
+    @Query()
+    query: {
+      page?: string;
+      search: string;
+      tag?: string;
+      take?: string;
+      sort: 'asc' | 'desc';
+    },
   ) {
-    return this.tournamentsService.tournaments(query);
+    return this.tournamentsService.tournaments({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Post('/create')

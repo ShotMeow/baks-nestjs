@@ -21,8 +21,14 @@ export class UsersController {
   }
 
   @Get()
-  async getUsers(@Query() query: { search: string }) {
-    return this.usersService.users(query);
+  async getUsers(
+    @Query() query: { take?: string; page?: number; search: string },
+  ) {
+    return this.usersService.users({
+      ...query,
+      take: query.take && +query.take,
+      page: query.page && +query.page,
+    });
   }
 
   @Patch('/:id/edit')

@@ -39,8 +39,22 @@ export class UsersService {
     };
   }
 
-  async users({ search = '' }: { search: string }) {
+  async users({
+    page = 1,
+    take = 10,
+    search = '',
+  }: {
+    page?: number;
+    take?: number;
+    search: string;
+  }) {
+    const skip = (page - 1) * take;
+
+    const totalUsersCount = await this.prisma.user.count();
+
     const users = await this.prisma.user.findMany({
+      take,
+      skip,
       where: {
         OR: [
           {
@@ -75,15 +89,43 @@ export class UsersService {
       },
     });
 
-    return users.map((user) => ({
-      ...user,
-      team: {
-        ...user.team,
-        tournaments: user.team?.tournaments?.map(
-          ({ tournament }) => tournament,
-        ),
-      },
-    }));
+    const pagesCount = Math.ceil(totalUsersCount / take);
+    const visiblePages = 5;
+
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalUsersCount,
+    };
+
+    return {
+      data: users.map((user) => ({
+        ...user,
+        team: {
+          ...user.team,
+          tournaments: user.team?.tournaments?.map(
+            ({ tournament }) => tournament,
+          ),
+        },
+      })),
+      pagination,
+    };
   }
 
   async createUser(data: CreateUserDto) {

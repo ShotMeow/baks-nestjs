@@ -45,18 +45,25 @@ export class NewsService {
   }
 
   async posts({
+    page = 1,
     search = '',
     tag,
-    take,
+    take = 17,
     sort = 'desc',
   }: {
+    page?: number;
     search: string;
     tag?: string;
-    take?: string;
+    take?: number;
     sort: 'asc' | 'desc';
   }) {
+    const skip = (page - 1) * take;
+
+    const totalNewsCount = await this.prisma.news.count();
+
     const news = await this.prisma.news.findMany({
-      take: take && +take,
+      take,
+      skip,
       where: {
         title: {
           contains: search,
@@ -81,10 +88,38 @@ export class NewsService {
       },
     });
 
-    return news.map((post) => ({
-      ...post,
-      tags: post.tags?.map(({ tag }) => tag),
-    }));
+    const pagesCount = Math.ceil(totalNewsCount / take);
+    const visiblePages = 5;
+
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalNewsCount,
+    };
+
+    return {
+      data: news.map((post) => ({
+        ...post,
+        tags: post.tags?.map(({ tag }) => tag),
+      })),
+      pagination,
+    };
   }
 
   async createPost(data: CreatePostDto) {
@@ -131,24 +166,12 @@ export class NewsService {
 
     const currentTagIds = currentTags?.map((tag) => tag.tagId);
 
-    const tagsChanged =
-      currentTagIds && data.tags
-        ? JSON.stringify(currentTagIds.sort()) !==
-          (data.tags ? JSON.stringify(data.tags.map((tag) => +tag).sort()) : '')
-        : false;
+    const tagsChanged = currentTagIds
+      ? JSON.stringify(currentTagIds.sort()) !==
+        (data.tags ? JSON.stringify(data.tags.map((tag) => +tag).sort()) : '')
+      : false;
 
     return this.prisma.$transaction(async (prisma) => {
-      await prisma.news.update({
-        where: { id },
-        data: {
-          title: data.title,
-          artworkUrl: imagePath,
-          description: data.description,
-          body: data.body,
-          updatedAt: new Date(),
-        },
-      });
-
       if (tagsChanged) {
         await prisma.tagsOnNews.deleteMany({
           where: {
@@ -161,11 +184,23 @@ export class NewsService {
             tagId: +tagId,
             newsId: id,
           }));
+
           await prisma.tagsOnNews.createMany({
             data: newTagRelations,
           });
         }
       }
+
+      return prisma.news.update({
+        where: { id },
+        data: {
+          title: data.title,
+          artworkUrl: imagePath,
+          description: data.description,
+          body: data.body,
+          updatedAt: new Date(),
+        },
+      });
     });
   }
 

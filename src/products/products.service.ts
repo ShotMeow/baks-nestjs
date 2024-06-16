@@ -18,15 +18,61 @@ export class ProductsService {
     });
   }
 
-  async products({ search = '', take }: { search: string; take?: string }) {
-    return this.prisma.product.findMany({
-      take: take && +take,
+  async products({
+    page = 1,
+    search = '',
+    take = 12,
+  }: {
+    page?: number;
+    search: string;
+    take?: number;
+  }) {
+    const skip = (page - 1) * take;
+
+    const totalProductsCount = await this.prisma.product.count();
+
+    const pagesCount = Math.ceil(totalProductsCount / take);
+    const visiblePages = 5;
+
+    const products = await this.prisma.product.findMany({
+      take,
+      skip,
       where: {
         name: {
           contains: search,
         },
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalProductsCount,
+    };
+
+    return {
+      data: products,
+      pagination,
+    };
   }
 
   async createProduct(data: CreateProductDto) {

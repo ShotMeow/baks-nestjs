@@ -25,13 +25,18 @@ export class NewsController {
   async getPosts(
     @Query()
     query: {
+      page?: string;
       search: string;
-      tag: string;
+      tag?: string;
       take?: string;
       sort: 'asc' | 'desc';
     },
   ) {
-    return this.newsService.posts(query);
+    return this.newsService.posts({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Get('/:id')

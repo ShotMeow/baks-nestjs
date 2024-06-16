@@ -23,8 +23,14 @@ export class TagsController {
   }
 
   @Get()
-  async getTags(@Query() query: { search: string }) {
-    return this.tagsService.tags(query);
+  async getTags(
+    @Query() query: { page?: string; take?: string; search: string },
+  ) {
+    return this.tagsService.tags({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Post('/create')

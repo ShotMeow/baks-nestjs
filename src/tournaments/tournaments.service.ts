@@ -40,18 +40,28 @@ export class TournamentsService {
   }
 
   async tournaments({
+    page = 1,
     search = '',
     tag,
-    take,
+    take = 13,
     sort = 'desc',
   }: {
+    page: number;
     search: string;
     tag?: string;
-    take?: string;
+    take?: number;
     sort: 'asc' | 'desc';
   }) {
+    const skip = (page - 1) * take;
+
+    const totalTournamentsCount = await this.prisma.tournament.count();
+
+    const pagesCount = Math.ceil(totalTournamentsCount / take);
+    const visiblePages = 5;
+
     const tournaments = await this.prisma.tournament.findMany({
-      take: take && +take,
+      take,
+      skip,
       where: {
         name: {
           contains: search,
@@ -85,11 +95,36 @@ export class TournamentsService {
       },
     });
 
-    return tournaments.map((tournament) => ({
-      ...tournament,
-      teams: tournament.teams.map(({ team }) => team),
-      tags: tournament.tags.map(({ tag }) => tag),
-    }));
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalTournamentsCount,
+    };
+
+    return {
+      data: tournaments.map((tournament) => ({
+        ...tournament,
+        teams: tournament.teams.map(({ team }) => team),
+        tags: tournament.tags.map(({ tag }) => tag),
+      })),
+      pagination,
+    };
   }
 
   async createTournament(data: CreateTournamentDto) {
@@ -170,22 +205,6 @@ export class TournamentsService {
       : false;
 
     return this.prisma.$transaction(async (prisma) => {
-      await prisma.tournament.update({
-        where: { id },
-        data: {
-          name: data.name,
-          body: data.body,
-          description: data.description,
-          prize: +data.prize,
-          mode: data.mode,
-          type: data.type,
-          artworkUrl: imagePath,
-          address: data.address,
-          gridUrl: data.gridUrl,
-          eventDate: data.eventDate,
-        },
-      });
-
       if (teamsChanged) {
         await prisma.teamsOnTournaments.deleteMany({
           where: {
@@ -223,6 +242,22 @@ export class TournamentsService {
           });
         }
       }
+
+      return prisma.tournament.update({
+        where: { id },
+        data: {
+          name: data.name,
+          body: data.body,
+          description: data.description,
+          prize: +data.prize,
+          mode: data.mode,
+          type: data.type,
+          artworkUrl: imagePath,
+          address: data.address,
+          gridUrl: data.gridUrl,
+          eventDate: data.eventDate,
+        },
+      });
     });
   }
 

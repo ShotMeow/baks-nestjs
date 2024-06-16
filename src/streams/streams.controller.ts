@@ -24,8 +24,14 @@ export class StreamsController {
   }
 
   @Get()
-  async getStreams(@Query() query: { search: string; take?: string }) {
-    return this.streamsService.streams(query);
+  async getStreams(
+    @Query() query: { page?: string; search: string; take?: string },
+  ) {
+    return this.streamsService.streams({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Post('/create')

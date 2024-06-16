@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma } from '@prisma/client';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { ImagesService } from '../images/images.service';
 import { UpdateStreamDto } from './dto/update-stream.dto';
@@ -18,15 +17,61 @@ export class StreamsService {
     });
   }
 
-  async streams({ search = '', take }: { search: string; take?: string }) {
-    return this.prisma.stream.findMany({
-      take: take && +take,
+  async streams({
+    page = 1,
+    search = '',
+    take = 12,
+  }: {
+    page?: number;
+    search: string;
+    take?: number;
+  }) {
+    const skip = (page - 1) * take;
+
+    const totalStreamsCount = await this.prisma.stream.count();
+
+    const streams = await this.prisma.stream.findMany({
+      take,
+      skip,
       where: {
         title: {
           contains: search,
         },
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+
+    const pagesCount = Math.ceil(totalStreamsCount / take);
+    const visiblePages = 5;
+
+    const pagination = {
+      currentPage: page,
+      lastPage: pagesCount,
+      pages: Array.from(
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
+        (_, k) => {
+          let startPage = 1;
+
+          // Проверяем, нужно ли сдвигать начальную страницу
+          if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
+            startPage = Math.min(
+              pagesCount - visiblePages + 1,
+              Math.max(1, page - Math.floor(visiblePages / 2)),
+            );
+          }
+
+          return startPage + k;
+        },
+      ).filter((p) => p >= 1 && p <= pagesCount),
+      itemsCount: totalStreamsCount,
+    };
+
+    return {
+      data: streams,
+      pagination,
+    };
   }
 
   async createStream(data: CreateStreamDto) {

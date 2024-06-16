@@ -25,9 +25,19 @@ export class TeamsController {
 
   @Get()
   async getTeams(
-    @Query() query: { search: string; take?: string; sort: 'asc' | 'desc' },
+    @Query()
+    query: {
+      page?: string;
+      search: string;
+      take?: string;
+      sort: 'asc' | 'desc';
+    },
   ) {
-    return this.teamsService.teams(query);
+    return this.teamsService.teams({
+      ...query,
+      page: query.page && +query.page,
+      take: query.take && +query.take,
+    });
   }
 
   @Post('/create')
