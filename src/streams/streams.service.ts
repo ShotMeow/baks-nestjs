@@ -45,7 +45,7 @@ export class StreamsService {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
 

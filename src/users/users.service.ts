@@ -87,6 +87,9 @@ export class UsersService {
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
 
     const pagesCount = Math.ceil(totalUsersCount / take);

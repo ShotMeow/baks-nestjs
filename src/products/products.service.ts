@@ -49,7 +49,7 @@ export class ProductsService {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
 

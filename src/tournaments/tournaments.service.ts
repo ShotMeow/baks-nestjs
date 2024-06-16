@@ -104,7 +104,7 @@ export class TournamentsService {
         },
       },
       orderBy: {
-        createdAt: sort,
+        updatedAt: sort,
       },
     });
 

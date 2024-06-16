@@ -33,8 +33,9 @@ model Tag {
   id                Int                 @id @default(autoincrement())
   name              String
   news              TagsOnNews[]
-  createdAt         DateTime            @default(now()) @map("created_at")
   TagsOnTournaments TagsOnTournaments[]
+  updatedAt         DateTime            @default(now()) @updatedAt @map("updated_at")
+  createdAt         DateTime            @default(now()) @map("created_at")
 
   @@map("tags")
 }
@@ -58,6 +59,7 @@ model Stream {
   description String?
   channel     String
   posterUrl   String?  @map("poster_url")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("streams")
@@ -71,6 +73,7 @@ model Product {
   description String?
   price       Int?
   pictureUrl  String?  @map("picture_url")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("products")
@@ -88,6 +91,7 @@ model Team {
   players     User[]               @relation()
   tournaments TeamsOnTournaments[]
   lastMatch   DateTime?            @map("last_match")
+  updatedAt   DateTime             @default(now()) @updatedAt @map("updated_at")
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@map("teams")
@@ -106,6 +110,7 @@ model User {
   assists    Float?
   team       Team?    @relation(fields: [teamId], references: [id])
   teamId     Int?     @map("team_id")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("users")
@@ -127,6 +132,7 @@ model Tournament {
   eventDate   DateTime?            @map("event_date")
   gridUrl     String?              @map("grid_url")
   tags        TagsOnTournaments[]
+  updatedAt   DateTime             @default(now()) @updatedAt @map("updated_at")
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@map("tournaments")

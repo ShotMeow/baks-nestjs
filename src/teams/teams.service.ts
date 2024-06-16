@@ -71,7 +71,7 @@ export class TeamsService {
         },
       },
       orderBy: {
-        createdAt: sort,
+        updatedAt: sort,
       },
     });
 
