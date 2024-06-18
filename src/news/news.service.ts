@@ -48,7 +48,7 @@ export class NewsService {
     page = 1,
     search = '',
     tag,
-    take = 4,
+    take = 13,
     sort = 'desc',
   }: {
     page?: number;
