@@ -48,13 +48,13 @@ export class UsersService {
     take?: number;
     search: string;
   }) {
+    const skip = (page - 1) * take;
+
     const totalUsersCount = await this.prisma.user.count();
 
-    const skip = take && (page - 1) * take;
-
     const users = await this.prisma.user.findMany({
-      take: !search ? take : undefined,
-      skip: !search ? skip : undefined,
+      take: take ? take : undefined,
+      skip: skip ? skip : undefined,
       where: {
         OR: [
           {
@@ -87,6 +87,9 @@ export class UsersService {
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
 
     const pagesCount = Math.ceil(totalUsersCount / take);
@@ -100,6 +103,7 @@ export class UsersService {
         (_, k) => {
           let startPage = 1;
 
+          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,

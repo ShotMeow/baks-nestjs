@@ -52,32 +52,41 @@ export class TournamentsService {
     take?: number;
     sort: 'asc' | 'desc';
   }) {
-    const whereCondition = {
-      name: {
-        contains: search,
-      },
-      tags: undefined,
-    };
-
-    if (tag) {
-      whereCondition.tags = {
-        some: {
-          tag: {
-            name: tag,
-          },
-        },
-      };
-    }
+    const skip = (page - 1) * take;
 
     const totalTournamentsCount = await this.prisma.tournament.count({
-      where: whereCondition,
+      where: {
+        name: {
+          contains: search,
+        },
+        tags: tag && {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
+        },
+      },
     });
 
     const pagesCount = Math.ceil(totalTournamentsCount / take);
     const visiblePages = 5;
 
-    const queryObject = {
-      where: whereCondition,
+    const tournaments = await this.prisma.tournament.findMany({
+      take,
+      skip,
+      where: {
+        name: {
+          contains: search,
+        },
+        tags: tag && {
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
+        },
+      },
       include: {
         teams: {
           select: {
@@ -97,27 +106,17 @@ export class TournamentsService {
       orderBy: {
         updatedAt: sort,
       },
-      skip: undefined,
-      take: undefined,
-    };
-
-    if (search === '' && !tag) {
-      queryObject.take = take;
-      queryObject.skip = (page - 1) * take;
-    }
-
-    const tournaments = await this.prisma.tournament.findMany(queryObject);
+    });
 
     const pagination = {
       currentPage: page,
       lastPage: pagesCount,
       pages: Array.from(
-        {
-          length: pagesCount > visiblePages ? visiblePages : pagesCount,
-        },
+        { length: pagesCount > visiblePages ? visiblePages : pagesCount },
         (_, k) => {
           let startPage = 1;
 
+          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,

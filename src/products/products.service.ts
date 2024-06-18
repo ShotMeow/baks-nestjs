@@ -27,6 +27,8 @@ export class ProductsService {
     search: string;
     take?: number;
   }) {
+    const skip = (page - 1) * take;
+
     const totalProductsCount = await this.prisma.product.count({
       where: {
         name: {
@@ -35,11 +37,12 @@ export class ProductsService {
       },
     });
 
-    const skip = take && (page - 1) * take;
+    const pagesCount = Math.ceil(totalProductsCount / take);
+    const visiblePages = 5;
 
     const products = await this.prisma.product.findMany({
-      take: !search ? take : undefined,
-      skip: !search ? skip : undefined,
+      take,
+      skip,
       where: {
         name: {
           contains: search,
@@ -50,9 +53,6 @@ export class ProductsService {
       },
     });
 
-    const pagesCount = Math.ceil(totalProductsCount / take);
-    const visiblePages = 5;
-
     const pagination = {
       currentPage: page,
       lastPage: pagesCount,
@@ -61,6 +61,7 @@ export class ProductsService {
         (_, k) => {
           let startPage = 1;
 
+          // Проверяем, нужно ли сдвигать начальную страницу
           if (pagesCount > visiblePages && page > Math.ceil(visiblePages / 2)) {
             startPage = Math.min(
               pagesCount - visiblePages + 1,
